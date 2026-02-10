@@ -10,10 +10,15 @@ export const hasAccess = (userPlanId: string | null, featureKey: string): boolea
     return plan.features.some(f => f.toLowerCase().includes(featureKey.toLowerCase()));
 };
 
-export const MAX_UPLOADS_FREE = 3;
+export const MAX_UPLOADS_FREE = 1000; // Increased for Testing/Beta
 
 export const canUpload = (userPlanId: string | null, currentUploadCount: number): boolean => {
+    // TEMPORARY: Allow all users to upload unlimited files during beta testing
+    return true; 
+    
+    /* Original Logic - Disabled for Beta
     const planId = userPlanId || 'free';
     if (planId === 'pro') return true;
     return currentUploadCount < MAX_UPLOADS_FREE;
+    */
 };
