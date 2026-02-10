@@ -24,24 +24,24 @@ export default async function Dashboard() {
       <FinancialStats stats={data.stats} />
 
       {/* 3. Charts Row (Income vs Expenses + Deductible Status) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-[25px] mb-[25px]">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-[30px] mb-[30px]">
+        <div className="xl:col-span-2">
           <IncomeVsExpenses data={data.incomeVsExpense} />
         </div>
-        <div className="lg:col-span-1">
-          <DeductibleStatus series={data.deductibleSeries} />
+        <div className="xl:col-span-1">
+          <DeductibleStatus series={data.deductibleSeries} savedAmount={data.stats.estTaxSaved} />
         </div>
       </div>
 
       {/* 4. Bottom Grid (Spending + Transactions) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-[25px]">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-[30px]">
         {/* Left Column: Spending Chart */}
-        <div className="lg:col-span-1">
+        <div className="xl:col-span-1">
           <SpendingOverview data={data.spendingOverview} />
         </div>
 
         {/* Right Column: Recent Transactions (Wider) */}
-        <div className="lg:col-span-2">
+        <div className="xl:col-span-2">
           <RecentTransactions transactions={data.recentTransactions} />
         </div>
       </div>

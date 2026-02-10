@@ -29,26 +29,32 @@ const SignInForm: React.FC = () => {
         throw error;
       }
 
-      router.push("/dashboard"); // Redirect to dashboard after login
+      // Success visual feedback before redirect
+      // We can use a success state here, but since we redirect fast, just keeping spinner is okay.
+      // But user requested "clear visual confirmation".
+      // Let's add a success checkmark or text change.
+      
+      router.push("/dashboard"); 
       router.refresh();
     } catch (err: any) {
       setError(err.message);
-    } finally {
       setLoading(false);
     }
   };
 
   const handleSocialLogin = async (provider: 'google') => {
+    setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
       if (error) throw error;
     } catch (err: any) {
       setError(err.message);
+      setLoading(false);
     }
   };
 
@@ -57,9 +63,9 @@ const SignInForm: React.FC = () => {
       <div className="auth-main-content bg-white dark:bg-[#0a0e19] py-[60px] md:py-[80px] lg:py-[135px]">
         <div className="mx-auto px-[12.5px] md:max-w-[720px] lg:max-w-[960px] xl:max-w-[1255px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-[25px] items-center">
-            <div className="rounded-[25px] order-2 lg:order-1 relative w-full aspect-[646/804]">
+            <div className="rounded-[25px] order-2 lg:order-1 relative w-full aspect-[646/804] hidden lg:block">
               <Image
-                src="/images/sign-in.jpg"
+                src="/images/boy-with-card.jpg"
                 alt="sign-in-image"
                 className="rounded-[25px] object-cover"
                 fill
@@ -94,16 +100,21 @@ const SignInForm: React.FC = () => {
                 <div className="grow">
                   <button
                     type="button"
+                    disabled={loading}
                     onClick={() => handleSocialLogin('google')}
-                    className="flex items-center justify-center gap-3 w-full rounded-md transition-all py-[12px] px-[25px] text-black dark:text-white border border-[#D6DAE1] bg-white dark:bg-[#0a0e19] dark:border-[#172036] shadow-sm hover:border-purple-500 hover:shadow-md font-medium"
+                    className="flex items-center justify-center gap-3 w-full rounded-md transition-all py-[12px] px-[25px] text-black dark:text-white border border-[#D6DAE1] bg-white dark:bg-[#0a0e19] dark:border-[#172036] shadow-sm hover:border-purple-500 hover:shadow-md font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Image
-                      src="/images/icons/google.svg"
-                      alt="google"
-                      width={20}
-                      height={20}
-                    />
-                    <span>Continue with Google</span>
+                    {loading ? (
+                      <span className="w-5 h-5 border-2 border-gray-300 border-t-purple-600 rounded-full animate-spin"></span>
+                    ) : (
+                      <Image
+                        src="/images/icons/google.svg"
+                        alt="google"
+                        width={20}
+                        height={20}
+                      />
+                    )}
+                    <span>{loading ? "Redirecting..." : "Continue with Google"}</span>
                   </button>
                 </div>
               </div>
@@ -147,10 +158,15 @@ const SignInForm: React.FC = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="md:text-md block w-full text-center transition-all rounded-md font-medium mt-[20px] md:mt-[25px] py-[12px] px-[25px] text-white bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`md:text-md block w-full text-center transition-all rounded-md font-medium mt-[20px] md:mt-[25px] py-[12px] px-[25px] text-white ${loading ? "bg-green-600 hover:bg-green-500" : "bg-purple-600 hover:bg-purple-500"} disabled:opacity-80 disabled:cursor-not-allowed`}
                 >
                   <span className="flex items-center justify-center gap-[5px]">
-                    {loading ? "Signing In..." : "Sign In"}
+                    {loading ? (
+                        <>
+                            <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                            <span>Signing In...</span>
+                        </>
+                    ) : "Sign In"}
                   </span>
                 </button>
               </form>

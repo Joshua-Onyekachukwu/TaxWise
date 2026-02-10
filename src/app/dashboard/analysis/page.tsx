@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ApexOptions } from "apexcharts";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
-const AnalysisPage: React.FC = () => {
+const AnalysisContent: React.FC = () => {
+  const searchParams = useSearchParams();
+  const uploadId = searchParams.get("uploadId");
   const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [monthlyData, setMonthlyData] = useState<{ income: number[], expense: number[], net: number[], categories: string[] }>({ income: [], expense: [], net: [], categories: [] });
@@ -19,11 +22,17 @@ const AnalysisPage: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data } = await supabase
+      let query = supabase
         .from("transactions")
         .select("*, categories(name)")
         .eq("user_id", user.id)
         .order("date", { ascending: true });
+
+      if (uploadId) {
+        query = query.eq("upload_id", uploadId);
+      }
+
+      const { data } = await query;
 
       if (data) {
         setTransactions(data);
@@ -33,7 +42,7 @@ const AnalysisPage: React.FC = () => {
     };
 
     fetchData();
-  }, [supabase]);
+  }, [supabase, uploadId]);
 
   const processChartData = (data: any[]) => {
     // Group by Month
@@ -96,7 +105,16 @@ const AnalysisPage: React.FC = () => {
 
   return (
     <div className="bg-white dark:bg-[#0c1427] p-[25px] rounded-md min-h-[calc(100vh-140px)]">
-      <h2 className="text-xl font-bold text-black dark:text-white mb-[25px]">Financial Analysis</h2>
+      <div className="flex justify-between items-center mb-[25px]">
+        <h2 className="text-xl font-bold text-black dark:text-white">
+            {uploadId ? "Analysis Result" : "Financial Analysis"}
+        </h2>
+        {uploadId && (
+            <a href="/dashboard/analysis" className="text-sm text-primary-500 hover:underline">
+                View All History
+            </a>
+        )}
+      </div>
 
       {/* Tax Readiness Callout */}
       <div className="mb-[30px] bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg p-[25px] text-white flex flex-col md:flex-row items-center justify-between shadow-lg">
@@ -180,6 +198,14 @@ const AnalysisPage: React.FC = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const AnalysisPage: React.FC = () => {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div></div>}>
+      <AnalysisContent />
+    </Suspense>
   );
 };
 

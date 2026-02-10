@@ -5,6 +5,7 @@ export class GenericAdapter implements CsvAdapter {
         date: ['date', 'transaction date', 'value date', 'posting date'],
         description: ['description', 'narration', 'remarks', 'details', 'memo', 'particulars'],
         amount: ['amount', 'transaction amount', 'value'],
+        type: ['type', 'transaction type', 'cr/dr', 'dr/cr'],
         debit: ['debit', 'withdrawal', 'dr'],
         credit: ['credit', 'deposit', 'cr'],
         balance: ['balance', 'running balance', 'available balance']
@@ -40,6 +41,7 @@ export class GenericAdapter implements CsvAdapter {
 
         mapping.date = findMatch(this.SYNONYMS.date);
         mapping.description = findMatch(this.SYNONYMS.description);
+        mapping.type = findMatch(this.SYNONYMS.type);
         
         // Try to find Amount vs Debit/Credit
         const amountCol = findMatch(this.SYNONYMS.amount);
@@ -72,14 +74,26 @@ export class GenericAdapter implements CsvAdapter {
         // Determine Amount and Type
         if (mapping.amount) {
             const rawAmount = this.cleanNumber(row[mapping.amount]);
-            if (rawAmount < 0) {
-                type = 'expense';
-                amount = Math.abs(rawAmount);
+            amount = Math.abs(rawAmount);
+
+            // If explicit Type column exists, use it
+            if (mapping.type && row[mapping.type]) {
+                const typeVal = row[mapping.type].toLowerCase();
+                if (typeVal.includes('debit') || typeVal.includes('dr') || typeVal === 'expense' || typeVal.includes('withdrawal')) {
+                    type = 'expense';
+                } else if (typeVal.includes('credit') || typeVal.includes('cr') || typeVal === 'income' || typeVal.includes('deposit')) {
+                    type = 'income';
+                } else {
+                    // Fallback to sign if type is ambiguous
+                     type = rawAmount < 0 ? 'expense' : 'income';
+                }
             } else {
-                type = 'income'; // Assumption: positive amount in single column is income? Or need another indicator?
-                // Actually, often "Amount" column is ambiguous without a "Type" or "CR/DR" indicator column.
-                // For MVP Generic, let's assume signed amount: negative = expense, positive = income.
-                amount = rawAmount;
+                // No Type column, use sign
+                if (rawAmount < 0) {
+                    type = 'expense';
+                } else {
+                    type = 'income';
+                }
             }
         } else if (mapping.debit && mapping.credit) {
             const debit = this.cleanNumber(row[mapping.debit]);

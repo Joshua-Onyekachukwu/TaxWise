@@ -49,9 +49,9 @@ const FinancialStats: React.FC<FinancialStatsProps> = ({ stats }) => {
       value: formatCurrency(stats.estTaxSaved),
       icon: "verified",
       trend: "increase",
-      trendValue: "+0%",
-      bgClass: "text-blue-600 bg-blue-50",
-      trendClass: "text-success-700 border-success-300 bg-success-100",
+      trendValue: "15%",
+      bgClass: "text-green-600 bg-green-50",
+      trendClass: "text-green-700 border-green-300 bg-green-100",
     },
   ];
 

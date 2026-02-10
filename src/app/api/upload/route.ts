@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { parse } from "csv-parse/sync";
 import { GenericAdapter } from "@/lib/csv-adapters/generic-adapter";
-import { NormalizedTransaction } from "@/lib/csv-adapters/types";
+import { AnalysisEngine } from "@/lib/analysis/engine";
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,7 +10,14 @@ export async function POST(req: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      // Allow fallback for local testing if needed, or strict error
+      // return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      
+      // Attempt to refresh session or handle edge case where middleware passed but getUser fails?
+      // Actually, middleware usually handles protection. 
+      // If we are here, maybe the token is missing/expired.
+      console.error("Auth Error in Upload Route:", authError);
+      return NextResponse.json({ error: "Unauthorized: Please sign in again." }, { status: 401 });
     }
 
     const formData = await req.formData();
@@ -136,10 +143,16 @@ export async function POST(req: NextRequest) {
     // Update Upload Status
     await supabase.from("uploads").update({ status: "completed" }).eq("id", uploadId);
 
+    // Trigger Analysis
+    const analysisEngine = new AnalysisEngine(supabase);
+    const analysisResult = await analysisEngine.runAnalysis(uploadId, user.id);
+    console.log("Analysis Result:", analysisResult);
+
     return NextResponse.json({ 
       success: true, 
       uploadId, 
       count: processedCount,
+      analysisCount: analysisResult.count,
       message: `Successfully processed ${processedCount} transactions` 
     });
 

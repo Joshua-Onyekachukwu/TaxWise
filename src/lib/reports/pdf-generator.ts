@@ -58,5 +58,6 @@ export function generatePDF(stats: ReportStats, transactions: Transaction[]) {
   doc.text(disclaimer, 14, finalY, { maxWidth: 180 });
 
   // Save
-  doc.save('taxwise-report.pdf');
+  const date = new Date().toISOString().split('T')[0];
+  doc.save(`taxwise-report-${date}.pdf`);
 }

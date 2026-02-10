@@ -57,7 +57,8 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleActive }) => {
               </Link>
             </li>
 
-            {/* AI Assistant */}
+            {/* AI Assistant - DISABLED FOR MVP */}
+            {/* 
             <li className="sidemenu-item mb-[4px] last:mb-0">
               <Link
                 href="/dashboard/chat"
@@ -71,6 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleActive }) => {
                 AI Assistant
               </Link>
             </li>
+            */}
           </ul>
 
           <span className="block relative font-medium uppercase text-gray-400 mt-[20px] mb-[8px] text-xs">

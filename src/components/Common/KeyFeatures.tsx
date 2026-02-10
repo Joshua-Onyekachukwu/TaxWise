@@ -35,68 +35,68 @@ const keyFeaturesData: KeyFeaturesData = {
     tag: "Key Features",
     title: "Everything You Need for Tax Season",
     description:
-      "Taxwise combines the power of AI with an intuitive chat interface to make tax compliance simple, fast, and accurate.",
+      "Taxwise combines automated analysis with expert tax logic to make compliance simple, fast, and accurate.",
   },
   features: [
     {
       id: 1,
-      title: "Chat-Based Workflow",
+      title: "Upload & Analyze",
       description:
-        "Just upload your CSV and chat. No complex forms or confusing accounting jargon.",
+        "Simply upload your bank statement CSV. We handle the messy formatting and cleaning automatically.",
       icon: {
-        src: "/images/icons/card.svg", // Reusing existing icons for now
-        alt: "chat",
+        src: "/images/icons/card.svg",
+        alt: "upload",
       },
       backgroundImage: {
         src: "/images/icons/cash-back.png",
-        alt: "chat-bg",
+        alt: "upload-bg",
       },
       offset: true,
       gradient: "linear-gradient(180deg, #BF85FB 0%, #9135E8 100%)",
     },
     {
       id: 2,
-      title: "AI Analysis",
+      title: "Smart Categorization",
       description:
-        "Our AI categorizes transactions and flags deductible expenses automatically.",
+        "Our system automatically categorizes transactions into income and expenses based on Nigerian tax contexts.",
       icon: {
         src: "/images/icons/travel-agency.svg",
-        alt: "ai",
+        alt: "analysis",
       },
       backgroundImage: {
         src: "/images/icons/plane.png",
-        alt: "ai-bg",
+        alt: "analysis-bg",
       },
       gradient: "linear-gradient(180deg, #BF85FB 0%, #9135E8 100%)",
     },
     {
       id: 3,
-      title: "Audit-Ready Reports",
+      title: "Maximize Deductions",
       description:
-        "Generate clean PDF and CSV reports that your accountant will love.",
+        "Automatically flag potential tax-deductible expenses like internet, transport, and utilities to save you money.",
       icon: {
         src: "/images/icons/expensive.svg",
-        alt: "reports",
+        alt: "deductibles",
       },
       backgroundImage: {
         src: "/images/icons/salary.png",
-        alt: "reports-bg",
+        alt: "deductibles-bg",
       },
       offset: true,
       gradient: "linear-gradient(180deg, #BF85FB 0%, #9135E8 100%)",
     },
     {
       id: 4,
-      title: "Data Security",
+      title: "Audit-Ready Reports",
       description:
-        "Your financial data is encrypted and protected with bank-grade security.",
+        "Generate professional PDF and CSV reports summarizing your financial year for tax filing.",
       icon: {
         src: "/images/icons/fraud-alert.svg",
-        alt: "security",
+        alt: "reports",
       },
       backgroundImage: {
         src: "/images/icons/danger.png",
-        alt: "security-bg",
+        alt: "reports-bg",
       },
       gradient: "linear-gradient(180deg, #BF85FB 0%, #9135E8 100%)",
     },

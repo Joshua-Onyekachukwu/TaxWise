@@ -119,8 +119,8 @@ const UploadDetailsPage: React.FC = () => {
               </>
             ) : (
               <>
-                <i className="material-symbols-outlined !text-lg">smart_toy</i>
-                Run AI Analysis
+                <i className="material-symbols-outlined !text-lg">analytics</i>
+                Run Analysis
               </>
             )}
           </button>

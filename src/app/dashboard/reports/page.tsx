@@ -20,6 +20,8 @@ const ReportsPage: React.FC = () => {
   });
   const [categoryData, setCategoryData] = useState<{ labels: string[], series: number[] }>({ labels: [], series: [] });
 
+  const [uncategorizedCount, setUncategorizedCount] = useState(0);
+
   const supabase = createClient();
 
   useEffect(() => {
@@ -49,10 +51,15 @@ const ReportsPage: React.FC = () => {
         let income = 0;
         let expenses = 0;
         let deductibles = 0;
+        let uncategorized = 0;
         const categoryMap: Record<string, number> = {};
 
         transactions.forEach((tx: any) => {
           const amt = Number(tx.amount);
+          const catName = tx.categories?.name || 'Uncategorized';
+          
+          if (catName === 'Uncategorized') uncategorized++;
+
           if (tx.type === 'income') {
             income += amt;
           } else {
@@ -61,9 +68,13 @@ const ReportsPage: React.FC = () => {
               deductibles += amt;
             }
             
-            // Category breakdown
-            const catName = tx.categories?.name || 'Uncategorized';
-            categoryMap[catName] = (categoryMap[catName] || 0) + amt;
+            // Category breakdown - Only for Expenses
+            if (catName !== 'Uncategorized') {
+              categoryMap[catName] = (categoryMap[catName] || 0) + amt;
+            } else {
+              // Should we show Uncategorized in breakdown? Yes.
+              categoryMap['Uncategorized'] = (categoryMap['Uncategorized'] || 0) + amt;
+            }
           }
         });
 
@@ -81,6 +92,8 @@ const ReportsPage: React.FC = () => {
           taxableIncome: taxable,
           estimatedTax: estimatedTax
         });
+        
+        setUncategorizedCount(uncategorized);
 
         setCategoryData({
           labels: Object.keys(categoryMap),
@@ -122,7 +135,8 @@ const ReportsPage: React.FC = () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", "taxwise_transactions.csv");
+      const date = new Date().toISOString().split('T')[0];
+      link.setAttribute("download", `taxwise-categorized-ledger-${date}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -166,6 +180,7 @@ const ReportsPage: React.FC = () => {
         <div>
             <h2 className="text-2xl font-bold text-black dark:text-white mb-[5px]">Tax Report</h2>
             <p className="text-gray-500 text-sm">Financial summary for the current tax year</p>
+            <p className="text-xs text-gray-400 mt-1 italic">Disclaimer: This report is an estimate based on provided data.</p>
         </div>
         <div className="flex gap-[10px]">
             <button 
@@ -185,20 +200,36 @@ const ReportsPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Tax Readiness Callout */}
+      <div className="mb-[30px] bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg p-[25px] text-white flex flex-col md:flex-row items-center justify-between shadow-lg">
+        <div>
+          <h3 className="text-xl font-bold mb-[5px] text-white">Tax Readiness Check</h3>
+          <p className="opacity-90 max-w-[500px] text-white">
+             You have analyzed your cash flow. Now let's see how much you can save.
+             We've identified potential deductions that could reduce your tax liability.
+          </p>
+        </div>
+      </div>
+
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[25px] mb-[25px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-[25px] mb-[25px]">
+        {/* Total Income */}
         <div className="bg-white dark:bg-[#0c1427] p-[20px] rounded-md shadow-sm border-l-4 border-primary-500">
             <span className="text-gray-500 text-xs uppercase font-semibold">Total Income</span>
             <h3 className="text-2xl font-bold text-black dark:text-white mt-[5px]">
                 ₦{stats.totalIncome.toLocaleString()}
             </h3>
         </div>
+
+        {/* Total Expenses */}
         <div className="bg-white dark:bg-[#0c1427] p-[20px] rounded-md shadow-sm border-l-4 border-orange-500">
             <span className="text-gray-500 text-xs uppercase font-semibold">Total Expenses</span>
             <h3 className="text-2xl font-bold text-black dark:text-white mt-[5px]">
                 ₦{stats.totalExpenses.toLocaleString()}
             </h3>
         </div>
+
+        {/* Deductible Expenses */}
         <div className="bg-white dark:bg-[#0c1427] p-[20px] rounded-md shadow-sm border-l-4 border-green-500">
             <span className="text-gray-500 text-xs uppercase font-semibold">Deductible Expenses</span>
             <h3 className="text-2xl font-bold text-green-600 mt-[5px]">
@@ -206,12 +237,69 @@ const ReportsPage: React.FC = () => {
             </h3>
             <span className="text-xs text-gray-400">Tax-Free Spending</span>
         </div>
+
+        {/* Est. Tax Saved - New Hero Metric */}
+        <div className="bg-green-50 dark:bg-green-900/20 p-[20px] rounded-md shadow-sm border border-green-200 dark:border-green-900/30">
+            <div className="flex items-center gap-2 mb-1">
+                <i className="material-symbols-outlined text-green-600 !text-lg">savings</i>
+                <span className="text-green-700 dark:text-green-400 text-xs uppercase font-bold">Est. Tax Saved</span>
+            </div>
+            <h3 className="text-2xl font-bold text-green-700 dark:text-green-400">
+                ₦{(stats.deductibleExpenses * 0.15).toLocaleString()}
+            </h3>
+            <span className="text-xs text-green-600/80">Money back in your pocket</span>
+        </div>
+
+        {/* Est. Tax Liability */}
         <div className="bg-white dark:bg-[#0c1427] p-[20px] rounded-md shadow-sm border-l-4 border-purple-500">
             <span className="text-gray-500 text-xs uppercase font-semibold">Est. Tax Liability</span>
             <h3 className="text-2xl font-bold text-purple-600 mt-[5px]">
                 ₦{stats.estimatedTax.toLocaleString()}
             </h3>
             <span className="text-xs text-gray-400">~15% Effective Rate</span>
+        </div>
+      </div>
+
+      {/* Tax Calculation Breakdown */}
+      <div className="bg-white dark:bg-[#0c1427] p-[25px] rounded-md shadow-sm mb-[25px]">
+        <h4 className="text-lg font-bold text-black dark:text-white mb-[20px]">Tax Calculation Breakdown</h4>
+        <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+                <thead className="bg-gray-50 dark:bg-[#15203c] border-b border-gray-100 dark:border-[#172036]">
+                    <tr>
+                        <th className="p-[15px] font-semibold text-gray-500">Component</th>
+                        <th className="p-[15px] font-semibold text-gray-500 text-right">Value</th>
+                        <th className="p-[15px] font-semibold text-gray-500">Notes</th>
+                    </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-[#172036]">
+                    <tr>
+                        <td className="p-[15px] text-black dark:text-white">Total Income</td>
+                        <td className="p-[15px] text-right font-medium text-black dark:text-white">₦{stats.totalIncome.toLocaleString()}</td>
+                        <td className="p-[15px] text-gray-500">Gross revenue from all sources</td>
+                    </tr>
+                    <tr>
+                        <td className="p-[15px] text-black dark:text-white">Deductible Expenses</td>
+                        <td className="p-[15px] text-right font-medium text-green-600">- ₦{stats.deductibleExpenses.toLocaleString()}</td>
+                        <td className="p-[15px] text-gray-500">Approved business expenses</td>
+                    </tr>
+                    <tr className="bg-blue-50 dark:bg-blue-900/10">
+                        <td className="p-[15px] font-bold text-black dark:text-white">Taxable Income</td>
+                        <td className="p-[15px] text-right font-bold text-blue-600">₦{stats.taxableIncome.toLocaleString()}</td>
+                        <td className="p-[15px] text-gray-500">Net income subject to tax</td>
+                    </tr>
+                    <tr>
+                        <td className="p-[15px] text-black dark:text-white">Estimated Tax Rate</td>
+                        <td className="p-[15px] text-right font-medium text-black dark:text-white">~15%</td>
+                        <td className="p-[15px] text-gray-500">Effective rate estimation (MVP)</td>
+                    </tr>
+                    <tr className="bg-purple-50 dark:bg-purple-900/10 border-t-2 border-purple-100">
+                        <td className="p-[15px] font-bold text-purple-700 dark:text-purple-400">Final Tax Estimate</td>
+                        <td className="p-[15px] text-right font-bold text-purple-700 dark:text-purple-400">₦{stats.estimatedTax.toLocaleString()}</td>
+                        <td className="p-[15px] text-gray-500">Potential liability</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
       </div>
 
@@ -256,7 +344,11 @@ const ReportsPage: React.FC = () => {
                     </div>
                     <div>
                         <h5 className="font-semibold text-sm text-black dark:text-white">Action Required</h5>
-                        <p className="text-xs text-gray-500 mt-[2px]">Review 3 uncategorized transactions to maximize your deductions.</p>
+                        <p className="text-xs text-gray-500 mt-[2px]">
+                            {uncategorizedCount > 0 
+                              ? `Review ${uncategorizedCount} uncategorized transactions to maximize your deductions.`
+                              : "All transactions are categorized. Great job!"}
+                        </p>
                     </div>
                 </li>
             </ul>

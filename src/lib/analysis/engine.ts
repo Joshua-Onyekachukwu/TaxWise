@@ -27,6 +27,7 @@ export class AnalysisEngine {
         user_id: userId,
         name: c.name,
         type: c.type,
+        is_deductible: (c as any).is_deductible || false,
         is_system_default: true
       }));
 
@@ -103,9 +104,17 @@ export class AnalysisEngine {
             matchedCategory = rule.category;
             // Only mark deductible if it's an expense
             isDeductible = tx.type === 'expense' && rule.is_deductible;
+            // Confidence: High if exact match, Medium if keyword
+            method = 'keyword';
             break;
             }
         }
+      }
+      
+      // Ensure "Uncategorized" is not treated as a valid category match for deduction
+      if (matchedCategory === 'Uncategorized') {
+          matchedCategory = null;
+          isDeductible = false;
       }
 
       if (matchedCategory) {
@@ -117,7 +126,7 @@ export class AnalysisEngine {
             .update({
               category_id: categoryId,
               is_deductible: isDeductible,
-              deductible_confidence: 0.95, // Higher confidence for rules
+              deductible_confidence: method === 'user_rule' ? 0.95 : 0.75, // Differentiate confidence
               status: "classified"
             })
             .eq("id", tx.id);
@@ -233,7 +242,10 @@ export class AnalysisEngine {
 
     let incomeTotal = 0;
     let expenseTotal = 0;
+    let deductibleTotal = 0;
     let uncategorizedCount = 0;
+    let duplicateCount = 0;
+    const txHashes = new Set<string>();
     
     const byCategory: Record<string, { amount: number, percent: number }> = {};
     const byMonth: Record<string, { income: number, expense: number }> = {};
@@ -244,6 +256,14 @@ export class AnalysisEngine {
       const amount = Number(tx.amount);
       const categoryName = tx.categories?.name || 'Uncategorized';
       
+      // Duplicate Check
+      const txHash = `${tx.date}-${amount}-${tx.description}-${tx.type}`;
+      if (txHashes.has(txHash)) {
+          duplicateCount++;
+      } else {
+          txHashes.add(txHash);
+      }
+      
       if (categoryName === 'Uncategorized') uncategorizedCount++;
 
       // Income vs Expense
@@ -251,6 +271,9 @@ export class AnalysisEngine {
         incomeTotal += amount;
       } else {
         expenseTotal += amount;
+        if (tx.is_deductible) {
+            deductibleTotal += amount;
+        }
       }
 
       // By Category (Expenses Only typically, or both? Let's do both but usually charts are expense breakdown)
@@ -276,6 +299,9 @@ export class AnalysisEngine {
 
     // 2. Post-process
     const netTotal = incomeTotal - expenseTotal;
+    const taxableIncome = Math.max(0, incomeTotal - deductibleTotal);
+    // Simplified Tax Estimation (e.g., 15% flat for MVP)
+    const estimatedTax = taxableIncome * 0.15;
 
     // Calculate percentages
     if (expenseTotal > 0) {
@@ -303,11 +329,18 @@ export class AnalysisEngine {
         income_total: incomeTotal,
         expense_total: expenseTotal,
         net_total: netTotal,
+        deductible_total: deductibleTotal,
+        taxable_income: taxableIncome,
+        estimated_tax: estimatedTax,
         by_category: byCategory,
         by_month: byMonth,
         top_merchants: topMerchants,
         largest_transactions: largestTransactions,
-        uncategorized_count: uncategorizedCount
+        uncategorized_count: uncategorizedCount,
+        quality_flags: {
+            possible_duplicates: duplicateCount,
+            has_uncategorized: uncategorizedCount > 0
+        }
     };
 
     // Upsert

@@ -1,0 +1,77 @@
+Date,Description,Amount,Type,Balance
+2024-01-05,Opening Balance,0,income,50000.00
+2024-01-15,Upwork Escrow Ref: 44589201,450000.00,income,500000.00
+2024-01-16,Transfer to Savings,100000.00,expense,400000.00
+2024-01-18,MTN Data Subscription,5000.00,expense,395000.00
+2024-01-20,Uber Trip to Ikeja,4500.00,expense,390500.00
+2024-01-25,Shoprite Groceries,45000.00,expense,345500.00
+2024-01-28,Netflix Subscription,4500.00,expense,341000.00
+2024-02-02,Client Payment - Design Project,250000.00,income,591000.00
+2024-02-05,MainOne Internet Service,25000.00,expense,566000.00
+2024-02-10,Fuel Station - Generator,15000.00,expense,551000.00
+2024-02-14,Valentine Dinner - Restaurant,35000.00,expense,516000.00
+2024-02-20,Cowrywise Savings,50000.00,expense,466000.00
+2024-02-25,Eko Electricity Distribution,10000.00,expense,456000.00
+2024-03-01,Upwork Escrow Ref: 44589202,300000.00,income,756000.00
+2024-03-05,DSTV Premium Subscription,29500.00,expense,726500.00
+2024-03-10,Laptop Repair - Computer Village,45000.00,expense,681500.00
+2024-03-15,Uber Trip to VI,6500.00,expense,675000.00
+2024-03-20,Jumia Nigeria - Office Chair,85000.00,expense,590000.00
+2024-03-25,Salary Payment - Tech Corp,650000.00,income,1240000.00
+2024-04-02,Rent Payment - Yearly,1500000.00,expense,-260000.00
+2024-04-05,Loan Disbursal - Carbon,500000.00,income,240000.00
+2024-04-10,Fuel Station - Car,20000.00,expense,220000.00
+2024-04-15,Professional Course - Udemy,15000.00,expense,205000.00
+2024-04-20,Tax FIRS Payment,50000.00,expense,155000.00
+2024-05-01,Transfer from Kuda Bank,100000.00,income,255000.00
+2024-05-05,Apple Music Subscription,1500.00,expense,253500.00
+2024-05-10,Chicken Republic - Lunch,3500.00,expense,250000.00
+2024-05-15,Zoom Video Communications,15000.00,expense,235000.00
+2024-05-20,Fiverr Payout,120000.00,income,355000.00
+2024-05-25,Internet Data - Airtel,10000.00,expense,345000.00
+2024-06-01,Transfer to Mum,50000.00,expense,295000.00
+2024-06-05,Web Hosting - Vercel,20000.00,expense,275000.00
+2024-06-10,Canva Subscription,5000.00,expense,270000.00
+2024-06-15,Client Payment - Mobile App,800000.00,income,1070000.00
+2024-06-20,New MacBook Pro - Slot,1200000.00,expense,-130000.00
+2024-06-25,Transfer from Savings,200000.00,income,70000.00
+2024-07-01,Gym Membership - I-Fitness,25000.00,expense,45000.00
+2024-07-05,Uber Trip to Airport,8500.00,expense,36500.00
+2024-07-10,Flight to Abuja - Air Peace,120000.00,expense,-83500.00
+2024-07-15,Hotel Stay - Abuja,150000.00,expense,-233500.00
+2024-07-20,Consulting Fee - Abuja Client,500000.00,income,266500.00
+2024-07-25,Fuel Station - Generator,15000.00,expense,251500.00
+2024-08-01,Upwork Escrow Ref: 44589205,400000.00,income,651500.00
+2024-08-05,Google Workspace Subscription,6000.00,expense,645500.00
+2024-08-10,Slack Pro Subscription,8000.00,expense,637500.00
+2024-08-15,Office Supplies - Stationery,12000.00,expense,625500.00
+2024-08-20,Printer Ink Cartridge,25000.00,expense,600500.00
+2024-08-25,Client Payment - Website Update,150000.00,income,750500.00
+2024-09-01,School Fees - Children,450000.00,expense,300500.00
+2024-09-05,DSTV Compact Subscription,15000.00,expense,285500.00
+2024-09-10,Uber Trip to Lekki,5500.00,expense,280000.00
+2024-09-15,Domino's Pizza,8500.00,expense,271500.00
+2024-09-20,Software License - Adobe,35000.00,expense,236500.00
+2024-09-25,Salary Payment - Tech Corp,650000.00,income,886500.00
+2024-10-01,Independence Day Shopping,55000.00,expense,831500.00
+2024-10-05,Fuel Station - Car,25000.00,expense,806500.00
+2024-10-10,Car Maintenance - Servicing,45000.00,expense,761500.00
+2024-10-15,Insurance Premium - Car,35000.00,expense,726500.00
+2024-10-20,Client Payment - Logo Design,100000.00,income,826500.00
+2024-10-25,Transfer to PiggyVest,100000.00,expense,726500.00
+2024-11-01,Spectranet Internet Renewal,22000.00,expense,704500.00
+2024-11-05,Netflix Subscription,5000.00,expense,699500.00
+2024-11-10,Black Friday Shopping - Jumia,120000.00,expense,579500.00
+2024-11-15,Bank Charges - SMS Alert,50.00,expense,579450.00
+2024-11-15,Bank Charges - Maintenance,250.00,expense,579200.00
+2024-11-20,Fiverr Payout,250000.00,income,829200.00
+2024-11-25,Fuel Station - Generator,18000.00,expense,811200.00
+2024-12-01,Christmas Decoration,35000.00,expense,776200.00
+2024-12-05,Flight to Lagos - Return,130000.00,expense,646200.00
+2024-12-10,End of Year Party Contribution,25000.00,expense,621200.00
+2024-12-15,Bonus Payment - Tech Corp,500000.00,income,1121200.00
+2024-12-20,Gift Shopping - Family,150000.00,expense,971200.00
+2024-12-25,Christmas Lunch - Restaurant,65000.00,expense,906200.00
+2024-12-25,Christmas Lunch - Restaurant,65000.00,expense,841200.00
+2024-12-31,Uber Trip to Church,4500.00,expense,836700.00
+2024-12-31,Closing Balance,,,836700.00

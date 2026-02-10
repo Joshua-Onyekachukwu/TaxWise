@@ -73,7 +73,7 @@ const NewUploadPage: React.FC = () => {
       }
 
       // Success
-      router.push("/dashboard/uploads"); // Or redirect to specific upload view
+      router.push(`/dashboard/analysis?uploadId=${data.uploadId}`);
       
     } catch (err: any) {
       console.error("Upload error:", err);

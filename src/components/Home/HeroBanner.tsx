@@ -35,19 +35,19 @@ const HeroBanner: React.FC = () => {
                   height={40}
                 />
               </div>{" "}
-              Taxes. Start Chatting.
+              Taxes. Start Saving.
             </h1>
 
             <p className="md:text-[15px] lg:text-md xl:text-lg mx-auto md:max-w-[630px]">
-              Taxwise turns your messy bank statements into audit-ready tax reports. 
-              Just upload your CSV and chat with our AI assistant to categorize expenses and maximize deductions.
+              Taxwise simplifies tax season for Nigerian freelancers and businesses. 
+              Upload your bank statement, automatically find deductible expenses, and generate audit-ready tax reports in seconds.
             </p>
 
             <Link
               href="/auth/sign-up"
               className="inline-block font-medium md:text-base rounded-[30px] bg-purple-600 text-white py-[11.5px] md:py-[12.5px] lg:py-[13.5px] px-[22px] md:px-[25px] transition-all hover:bg-purple-500 hover:text-white mt-[5px] md:mt-[15px] lg:mt-[25px]"
             >
-              Start Chatting - <span className="font-normal">It’s Free</span>
+              Start Saving - <span className="font-normal">It’s Free</span>
             </Link>
           </div>
 

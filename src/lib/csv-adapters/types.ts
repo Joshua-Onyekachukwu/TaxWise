@@ -26,6 +26,7 @@ export interface ColumnMapping {
     date: string;
     description: string;
     amount?: string; // If signed amount column exists
+    type?: string;   // If explicit type column exists
     debit?: string; // If debit/credit columns exist
     credit?: string; // If debit/credit columns exist
     currency?: string;
