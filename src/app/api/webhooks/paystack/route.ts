@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 
-const secret = process.env.PAYSTACK_WEBHOOK_SECRET || "placeholder_secret";
+const secret = process.env.PAYSTACK_SECRET_KEY || "";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,10 +11,11 @@ export async function POST(req: NextRequest) {
       .update(body)
       .digest("hex");
 
-    // Verify webhook signature (Enable this when live)
-    // if (hash !== req.headers.get("x-paystack-signature")) {
-    //   return NextResponse.json({ message: "Invalid signature" }, { status: 401 });
-    // }
+    // Verify webhook signature
+    const signature = req.headers.get("x-paystack-signature");
+    if (!secret || hash !== signature) {
+      return NextResponse.json({ message: "Invalid signature" }, { status: 401 });
+    }
 
     const event = JSON.parse(body);
 
