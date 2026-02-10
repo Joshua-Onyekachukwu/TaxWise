@@ -56,23 +56,6 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleActive }) => {
                 Dashboard
               </Link>
             </li>
-
-            {/* AI Assistant - DISABLED FOR MVP */}
-            {/* 
-            <li className="sidemenu-item mb-[4px] last:mb-0">
-              <Link
-                href="/dashboard/chat"
-                className={`sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[14px] ltr:pr-[30px] rtl:pr-[14px] rtl:pl-[30px] hover:text-purple-500 hover:bg-purple-50 w-full text-left dark:hover:bg-[#15203c] ${
-                  pathname?.startsWith("/dashboard/chat") ? "active text-purple-600 bg-purple-50 dark:bg-[#15203c]" : ""
-                }`}
-              >
-                <i className="material-symbols-outlined transition-all ltr:mr-[10px] rtl:ml-[10px] !text-[22px]">
-                  smart_toy
-                </i>
-                AI Assistant
-              </Link>
-            </li>
-            */}
           </ul>
 
           <span className="block relative font-medium uppercase text-gray-400 mt-[20px] mb-[8px] text-xs">

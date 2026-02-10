@@ -20,7 +20,6 @@ const Header: React.FC<HeaderProps> = ({ toggleActive }) => {
     if (path.startsWith("/dashboard/analysis")) return "Cash Flow Analysis";
     if (path.startsWith("/dashboard/deductibles")) return "Tax Deductions";
     if (path.startsWith("/dashboard/reports")) return "Tax Report 2024";
-    if (path.startsWith("/dashboard/chat")) return "Tax Strategy Copilot";
     if (path.startsWith("/dashboard/settings")) return "Settings";
     return "Dashboard Overview";
   };
