@@ -8,8 +8,8 @@ import DeductibleStatus from "@/components/Dashboard/Finance/DeductibleStatus";
 import ActiveEmptyState from "@/components/Dashboard/ActiveEmptyState";
 import { getDashboardStats } from "@/app/actions/dashboard";
 
-export default async function Dashboard() {
-  const data = await getDashboardStats();
+export default async function Dashboard({ searchParams }: { searchParams: { accountId?: string } }) {
+  const data = await getDashboardStats(searchParams.accountId);
 
   if (!data.hasData) {
     return <ActiveEmptyState />;

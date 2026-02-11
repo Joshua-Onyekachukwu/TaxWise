@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import AccountFilter from "@/components/Dashboard/AccountFilter";
 
 const WelcomeBanner: React.FC = () => {
   const [userName, setUserName] = useState<string>("Taxwise User");
@@ -51,7 +52,8 @@ const WelcomeBanner: React.FC = () => {
                     Overview of your financial performance and tax liability.
                 </p>
             </div>
-            <div className="flex gap-[10px]">
+            <div className="flex gap-[10px] items-center">
+                <AccountFilter />
                 <Link
                     href="/dashboard/uploads/new"
                     className="inline-flex justify-center items-center gap-[8px] bg-primary-600 text-white py-[10px] px-[20px] rounded-lg text-sm font-medium hover:bg-primary-700 transition-all shadow-sm"

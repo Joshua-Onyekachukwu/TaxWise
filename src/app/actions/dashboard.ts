@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 
-export async function getDashboardStats() {
+export async function getDashboardStats(accountId?: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -23,10 +23,18 @@ export async function getDashboardStats() {
   // relying on cached upload_summaries causes sync issues.
   // We will re-aggregate on the fly for the dashboard to ensure consistency.
   
-  const { data: allTransactions } = await supabase
+  let query = supabase
     .from("transactions")
-    .select("amount, type, is_deductible, status, date, categories(name)")
+    .select("amount, type, is_deductible, status, date, is_transfer, categories(name), upload_id, uploads!inner(account_id)")
     .eq("user_id", user.id);
+
+  if (accountId) {
+      // Need to filter by account_id which is on uploads table.
+      // Supabase join filter:
+      query = query.eq("uploads.account_id", accountId);
+  }
+
+  const { data: allTransactions } = await query;
 
   if (!allTransactions || allTransactions.length === 0) {
       return {
@@ -52,6 +60,9 @@ export async function getDashboardStats() {
   const monthlyMap: Record<string, { income: number, expense: number }> = {};
 
   allTransactions.forEach(tx => {
+      // Exclude transfers from totals
+      if (tx.is_transfer) return;
+
       const amt = Number(tx.amount);
       const date = new Date(tx.date);
       const monthKey = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear().toString().substr(-2)}`;
@@ -118,12 +129,18 @@ export async function getDashboardStats() {
 
   // Fetch Recent Transactions separately to keep logic clean (or use filtered list if we want)
   // Let's fetch strict last 5
-  const { data: recentTransactions } = await supabase
+  let recentQuery = supabase
     .from("transactions")
-    .select("id, date, description, amount, type, status, is_deductible, categories(name)")
+    .select("id, date, description, amount, type, status, is_deductible, categories(name), uploads!inner(account_id)")
     .eq("user_id", user.id)
     .order("date", { ascending: false })
     .limit(5);
+
+  if (accountId) {
+      recentQuery = recentQuery.eq("uploads.account_id", accountId);
+  }
+
+  const { data: recentTransactions } = await recentQuery;
 
   return {
     hasData: true,
