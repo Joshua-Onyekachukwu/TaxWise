@@ -21,7 +21,7 @@ const SignUpForm: React.FC = () => {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -36,10 +36,14 @@ const SignUpForm: React.FC = () => {
         throw error;
       }
 
-      // Check if email confirmation is required (Supabase default)
-      // Usually, we show a "Check your email" message
-      alert("Check your email for the confirmation link!");
-      router.push("/auth/sign-in");
+      if (data.session) {
+        // Email confirmation is disabled, user is signed in immediately
+        router.push("/dashboard");
+      } else {
+        // Email confirmation is enabled
+        alert("Check your email for the confirmation link!");
+        router.push("/auth/sign-in");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
