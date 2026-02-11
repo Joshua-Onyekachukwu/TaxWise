@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Dialog } from "@/components/ui/dialog"; // Assuming you have a Dialog component or will use native
 
 interface BankAccount {
   id: string;

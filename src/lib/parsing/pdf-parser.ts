@@ -1,5 +1,21 @@
-import pdf from 'pdf-parse';
 import { NormalizedTransaction } from '../csv-adapters/types';
+
+// Polyfills for pdf-parse dependencies to avoid build errors in Node.js
+if (typeof global.DOMMatrix === 'undefined') {
+    // @ts-ignore
+    global.DOMMatrix = class DOMMatrix {};
+}
+if (typeof global.Path2D === 'undefined') {
+    // @ts-ignore
+    global.Path2D = class Path2D {};
+}
+if (typeof global.ImageData === 'undefined') {
+    // @ts-ignore
+    global.ImageData = class ImageData {};
+}
+
+// @ts-ignore
+const pdf = require('pdf-parse');
 
 export class PdfParserService {
     
