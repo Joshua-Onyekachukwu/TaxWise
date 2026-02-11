@@ -11,31 +11,7 @@ const HeroBanner: React.FC = () => {
         <div className="container sm:max-w-[540px] md:max-w-[720px] lg:max-w-[960px] xl:max-w-[1308px] mx-auto px-[12px]">
           <div className="text-center mx-auto lg:max-w-[880px]">
             <h1 className="!font-medium !text-3xl md:!text-[45px] lg:!text-[55px] xl:!text-[60px] !leading-[1.2] !mb-[12px] md:!mb-[15px] lg:!mb-[20px]">
-              Stop Guessing Your{" "}
-              <div className="inline-block">
-                <Image
-                  src="/images/users/user4.jpg"
-                  className="w-[40px] h-[40px] md:w-[60px] md:h-[60px] border-[2px] md:border-[3px] border-white -mx-[7px] inline-block rounded-full ltr:last:mr-0 rtl:last:ml-0 ltr:first:ml-0 rtl:first:mr-0"
-                  alt="user-image"
-                  width={40}
-                  height={40}
-                />
-                <Image
-                  src="/images/users/user5.jpg"
-                  className="w-[40px] h-[40px] md:w-[60px] md:h-[60px] border-[2px] md:border-[3px] border-white -mx-[7px] inline-block rounded-full ltr:last:mr-0 rtl:last:ml-0 ltr:first:ml-0 rtl:first:mr-0"
-                  alt="user-image"
-                  width={40}
-                  height={40}
-                />
-                <Image
-                  src="/images/users/user6.jpg"
-                  className="w-[40px] h-[40px] md:w-[60px] md:h-[60px] border-[2px] md:border-[3px] border-white -mx-[7px] inline-block rounded-full ltr:last:mr-0 rtl:last:ml-0 ltr:first:ml-0 rtl:first:mr-0"
-                  alt="user-image"
-                  width={40}
-                  height={40}
-                />
-              </div>{" "}
-              Taxes. Start Saving.
+              Stop Guessing Your Taxes. Start Saving.
             </h1>
 
             <p className="md:text-[15px] lg:text-md xl:text-lg mx-auto md:max-w-[630px]">
