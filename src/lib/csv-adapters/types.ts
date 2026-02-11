@@ -40,4 +40,9 @@ export interface NormalizedTransaction {
     type: 'income' | 'expense';
     currency: string; // Default 'NGN'
     raw_row: any; // For debugging
+
+    // New Fields for Deduplication & Transfers
+    fingerprint?: string;
+    is_transfer?: boolean;
+    transfer_match_id?: string;
 }

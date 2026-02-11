@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { parse } from "csv-parse/sync";
 import { GenericAdapter } from "@/lib/csv-adapters/generic-adapter";
 import { AnalysisEngine } from "@/lib/analysis/engine";
+import { PdfParserService } from "@/lib/parsing/pdf-parser";
+import { NormalizedTransaction } from "@/lib/csv-adapters/types";
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,21 +12,21 @@ export async function POST(req: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      // Allow fallback for local testing if needed, or strict error
-      // return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      
-      // Attempt to refresh session or handle edge case where middleware passed but getUser fails?
-      // Actually, middleware usually handles protection. 
-      // If we are here, maybe the token is missing/expired.
       console.error("Auth Error in Upload Route:", authError);
       return NextResponse.json({ error: "Unauthorized: Please sign in again." }, { status: 401 });
     }
 
     const formData = await req.formData();
     const file = formData.get("file") as File;
+    const accountId = formData.get("accountId") as string;
+    const manualMappingJson = formData.get("mapping") as string;
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    }
+
+    if (!accountId) {
+        return NextResponse.json({ error: "Bank Account ID is required" }, { status: 400 });
     }
 
     // Basic Validation
@@ -32,63 +34,111 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "File too large (max 10MB)" }, { status: 400 });
     }
 
-    if (!file.name.endsWith(".csv")) {
-       return NextResponse.json({ error: "Only CSV files are supported currently" }, { status: 400 });
-    }
-
-    // Read file content
+    const fileType = file.name.toLowerCase().endsWith('.pdf') ? 'pdf' : 'csv';
     const buffer = await file.arrayBuffer();
-    const content = new TextDecoder("utf-8").decode(buffer);
+    
+    let transactionsToInsert: any[] = [];
+    let headers: string[] = [];
+    let mapping: any = {};
+    let records: any[] = [];
 
-    // Parse CSV
-    const records = parse(content, {
-      columns: true,
-      skip_empty_lines: true,
-      trim: true,
-    }) as Record<string, string>[];
+    // --- PDF HANDLING ---
+    if (fileType === 'pdf') {
+        const pdfService = new PdfParserService();
+        // Convert ArrayBuffer to Buffer for pdf-parse
+        const nodeBuffer = Buffer.from(buffer);
+        const parsedTxs = await pdfService.parse(nodeBuffer);
+        
+        if (parsedTxs.length === 0) {
+            return NextResponse.json({ error: "Could not extract any transactions from this PDF. Please ensure it is a digital bank statement." }, { status: 400 });
+        }
 
-    if (records.length === 0) {
-      return NextResponse.json({ error: "CSV is empty" }, { status: 400 });
-    }
+        // Prepare for insertion
+        transactionsToInsert = parsedTxs.map(tx => ({
+            user_id: user.id,
+            // upload_id set later
+            date: tx.date,
+            description: tx.description,
+            amount: tx.amount,
+            type: tx.type,
+            currency: tx.currency,
+            raw_row: tx.raw_row,
+            status: "pending_review",
+            is_deductible: false,
+            // Fingerprint for deduplication
+            fingerprint: generateFingerprint(tx, accountId)
+        }));
 
-    // Use Generic Adapter
-    const adapter = new GenericAdapter();
-    const headers = Object.keys(records[0]);
-    let mapping = adapter.mapColumns(headers);
+    } 
+    // --- CSV HANDLING ---
+    else {
+        const content = new TextDecoder("utf-8").decode(buffer);
+        records = parse(content, {
+            columns: true,
+            skip_empty_lines: true,
+            trim: true,
+        }) as Record<string, string>[];
 
-    // Check if user provided manual mapping
-    const manualMappingJson = formData.get("mapping") as string;
-    if (manualMappingJson) {
-        try {
-            const manualMapping = JSON.parse(manualMappingJson);
-            // Override auto-detection
-            mapping = { ...mapping, ...manualMapping };
-        } catch (e) {
-            console.warn("Invalid manual mapping JSON", e);
+        if (records.length === 0) {
+            return NextResponse.json({ error: "CSV is empty" }, { status: 400 });
+        }
+
+        const adapter = new GenericAdapter();
+        headers = Object.keys(records[0]);
+        mapping = adapter.mapColumns(headers);
+
+        if (manualMappingJson) {
+            try {
+                const manualMapping = JSON.parse(manualMappingJson);
+                mapping = { ...mapping, ...manualMapping };
+            } catch (e) {
+                console.warn("Invalid manual mapping JSON", e);
+            }
+        }
+
+        // Validate Mapping
+        if (!mapping.date || !mapping.description || (!mapping.amount && (!mapping.debit || !mapping.credit))) {
+            return NextResponse.json({ 
+                success: false,
+                status: "mapping_required",
+                headers: headers,
+                detectedMapping: mapping,
+                filePreview: records.slice(0, 3)
+            }, { status: 200 });
+        }
+
+        // Parse Rows
+        for (const row of records) {
+            const normalized = await adapter.parseRow(row, mapping);
+            if (normalized.amount === 0) continue;
+
+            transactionsToInsert.push({
+                user_id: user.id,
+                // upload_id set later
+                date: normalized.date,
+                description: normalized.description,
+                amount: normalized.amount,
+                type: normalized.type,
+                currency: normalized.currency,
+                raw_row: row,
+                status: "pending_review",
+                is_deductible: false,
+                fingerprint: generateFingerprint(normalized, accountId)
+            });
         }
     }
 
-    // Validate Mapping
-    if (!mapping.date || !mapping.description || (!mapping.amount && (!mapping.debit || !mapping.credit))) {
-       // Return a special status "mapping_required" instead of hard error
-       return NextResponse.json({ 
-         success: false,
-         status: "mapping_required",
-         headers: headers,
-         detectedMapping: mapping,
-         filePreview: records.slice(0, 3) // Send first 3 rows for preview
-       }, { status: 200 });
-    }
-
-    // Create Upload Record
+    // --- Create Upload Record ---
     const { data: uploadData, error: uploadError } = await supabase
       .from("uploads")
       .insert({
         user_id: user.id,
         filename: file.name,
-        file_url: "local_upload", // Placeholder for now, ideally upload to Storage bucket
+        file_url: "local_upload", 
         status: "processing",
-        parsing_profile: { adapter: "generic", mapping }
+        account_id: accountId, // Link to Bank Account
+        file_type: fileType,
+        parsing_profile: fileType === 'csv' ? { adapter: "generic", mapping } : { adapter: "pdf-regex" }
       })
       .select()
       .single();
@@ -100,33 +150,23 @@ export async function POST(req: NextRequest) {
 
     const uploadId = uploadData.id;
 
-    // Parse Rows & Prepare Transactions
-    const transactionsToInsert = [];
-    let processedCount = 0;
+    // --- Deduplication Check ---
+    // 1. Get all fingerprints for this account
+    // Optimization: In a real app, we'd query by batch or use ON CONFLICT DO NOTHING.
+    // For now, let's just fetch existing fingerprints for this account to filter in memory (simple for < 10k rows).
+    // Or better, use `upsert` or check individually?
+    // Let's rely on a unique constraint or manual check.
+    // Manual check for now to allow "marking" as duplicate rather than silent skip.
+    
+    // Actually, let's just insert all. We can run a "dedup" job later, or filter now.
+    // Let's filter now.
+    
+    // Fetch fingerprints from last 12 months for this account?
+    // For MVP, we skip complex DB checks and just insert. 
+    // BUT we add the upload_id to the objects.
+    transactionsToInsert.forEach(t => t.upload_id = uploadId);
 
-    for (const row of records) {
-      const normalized = await adapter.parseRow(row, mapping);
-      
-      // Skip invalid rows (e.g. 0 amount)
-      if (normalized.amount === 0) continue;
-
-      transactionsToInsert.push({
-        user_id: user.id,
-        upload_id: uploadId,
-        date: normalized.date,
-        description: normalized.description,
-        amount: normalized.amount,
-        type: normalized.type,
-        currency: normalized.currency,
-        raw_row: row,
-        status: "pending_review",
-        is_deductible: false // Default to false, AI analysis will update this later
-      });
-      processedCount++;
-    }
-
-    // Batch Insert Transactions (Supabase has limit, usually 1000s is fine, but safer to chunk if large)
-    // For < 10MB file, it should be fine in one go or few chunks.
+    // Batch Insert
     const chunkSize = 500;
     for (let i = 0; i < transactionsToInsert.length; i += chunkSize) {
       const chunk = transactionsToInsert.slice(i, i + chunkSize);
@@ -134,7 +174,6 @@ export async function POST(req: NextRequest) {
       
       if (batchError) {
          console.error("Batch Insert Error:", batchError);
-         // Mark upload as failed?
          await supabase.from("uploads").update({ status: "failed" }).eq("id", uploadId);
          return NextResponse.json({ error: "Failed to save transactions" }, { status: 500 });
       }
@@ -146,18 +185,39 @@ export async function POST(req: NextRequest) {
     // Trigger Analysis
     const analysisEngine = new AnalysisEngine(supabase);
     const analysisResult = await analysisEngine.runAnalysis(uploadId, user.id);
-    console.log("Analysis Result:", analysisResult);
 
     return NextResponse.json({ 
       success: true, 
       uploadId, 
-      count: processedCount,
+      count: transactionsToInsert.length,
       analysisCount: analysisResult.count,
-      message: `Successfully processed ${processedCount} transactions` 
+      message: `Successfully processed ${transactionsToInsert.length} transactions` 
     });
 
   } catch (error: any) {
     console.error("API Error:", error);
     return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
   }
+}
+
+// Helper: Generate a simple deterministic hash for deduplication
+function generateFingerprint(tx: NormalizedTransaction, accountId: string): string {
+    // Fingerprint = SHA256(accountId + date + amount + description_slug)
+    // We'll just use a string concatenation for now as a "poor man's hash" or real hash if crypto available.
+    // Since we are in Node runtime (Next.js API), we can use crypto.
+    
+    const slug = tx.description.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const data = `${accountId}|${tx.date}|${tx.amount.toFixed(2)}|${slug}`;
+    
+    // Use simple base64 of string if crypto import is hassle, but let's try strict.
+    // Actually, just returning the string is fine for the column if it's not too long.
+    // But index performance is better with hash.
+    // Let's simple-hash it.
+    let hash = 0;
+    for (let i = 0; i < data.length; i++) {
+        const char = data.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash.toString(16);
 }
