@@ -43,9 +43,10 @@ export class PdfParserService {
             // }
 
             return [];
-        } catch (error) {
+        } catch (error: any) {
             console.error("PDF Parsing failed:", error);
-            throw new Error("Failed to parse PDF file.");
+            // Log the actual error for debugging
+            throw new Error(`Failed to parse PDF file: ${error.message || "Unknown error"}`);
         }
     }
 
