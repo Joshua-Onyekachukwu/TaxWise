@@ -15,7 +15,7 @@ if (typeof global.ImageData === 'undefined') {
 }
 
         .360// @ts-ignore
-const pdfParse = require('pdf-parse/lib/pdf-parse.js');
+import pdfParse from 'pdf-parse/lib/pdf-parse';
 
 export class PdfParserService {
     
