@@ -28,8 +28,9 @@ export class PdfParserService {
       // Optional debug (remove after confirming)
       // console.log('pdfParse typeof:', typeof pdfParse);
 
+      // @ts-ignore
       const data = await pdfParse(buffer);
-      const text = data?.text ?? '';
+      const text = data?.text || '';
 
       // Strategy 1: Regex Extraction
       const transactions = this.parseWithRegex(text);
