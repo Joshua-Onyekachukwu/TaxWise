@@ -15,10 +15,7 @@ if (typeof global.ImageData === 'undefined') {
 }
 
         .360// @ts-ignore
-import * as pdfParse from 'pdf-parse';
-
-// @ts-ignore
-const pdf = pdfParse.default || pdfParse;
+const pdfParse = require('pdf-parse/lib/pdf-parse.js');
 
 export class PdfParserService {
     
@@ -30,7 +27,7 @@ export class PdfParserService {
      */
     async parse(buffer: Buffer): Promise<NormalizedTransaction[]> {
         try {
-            const data = await pdf(buffer);
+            const data = await pdfParse(buffer);
             const text = data.text;
 
             // Strategy 1: Regex Extraction
