@@ -30,7 +30,7 @@ export class PdfParserService {
             // @ts-ignore
             const pdfFunc = pdfParse.default || pdfParse;
             const data = await pdfFunc(buffer);
-            const text = data.text;
+            const text = data?.text || '';
 
             // Strategy 1: Regex Extraction
             const transactions = this.parseWithRegex(text);
