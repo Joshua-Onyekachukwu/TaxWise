@@ -6,6 +6,9 @@ import { AnalysisEngine } from "@/lib/analysis/engine";
 import { PdfParserService } from "@/lib/parsing/pdf-parser";
 import { NormalizedTransaction } from "@/lib/csv-adapters/types";
 
+// Force Node.js runtime for this route (required for pdf-parse)
+export const runtime = 'nodejs';
+
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
