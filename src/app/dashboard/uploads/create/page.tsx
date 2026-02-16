@@ -90,9 +90,9 @@ const NewUploadPage: React.FC = () => {
       setStagedFiles(prev => prev.filter(f => f.id !== id));
   };
 
-  const updateFileAccount = (id: string, accountId: string) => {
-      setStagedFiles(prev => prev.map(f => f.id === id ? { ...f, accountId } : f));
-  };
+    const updateFileAccount = (id: string, accountId: string) => {
+        setStagedFiles(prev => prev.map(f => f.id === id ? { ...f, accountId } : f));
+    };
 
   // -- Batch Processing --
 
@@ -348,7 +348,7 @@ const NewUploadPage: React.FC = () => {
                                   <div className="w-[200px]">
                                       <BankAccountManager 
                                         selectedAccountId={file.accountId}
-                                        onAccountSelect={(id) => updateFileAccount(file.id, id)}
+                                        onAccountSelect={(id: string) => updateFileAccount(file.id, id)}
                                       />
                                   </div>
 
