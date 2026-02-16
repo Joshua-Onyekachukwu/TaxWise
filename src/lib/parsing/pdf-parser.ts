@@ -15,7 +15,10 @@ if (typeof global.ImageData === 'undefined') {
 }
 
 // @ts-ignore
-import pdf from 'pdf-parse/lib/pdf-parse.js';
+import * as pdfParse from 'pdf-parse';
+
+// @ts-ignore
+const pdf = pdfParse.default || pdfParse;
 
 export class PdfParserService {
     
