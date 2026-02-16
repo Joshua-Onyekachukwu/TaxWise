@@ -55,7 +55,7 @@ const WelcomeBanner: React.FC = () => {
             <div className="flex gap-[10px] items-center">
                 <AccountFilter />
                 <Link
-                    href="/dashboard/uploads/new"
+                    href="/dashboard/uploads/create"
                     className="inline-flex justify-center items-center gap-[8px] bg-primary-600 text-white py-[10px] px-[20px] rounded-lg text-sm font-medium hover:bg-primary-700 transition-all shadow-sm"
                 >
                     <i className="material-symbols-outlined !text-[20px]">add</i>

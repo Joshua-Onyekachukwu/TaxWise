@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BankAccountManager } from "@/components/Dashboard/Uploads/BankAccountManager";
@@ -20,6 +20,10 @@ const NewUploadPage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
   
+  useEffect(() => {
+      console.log("NewUploadPage Mounted");
+  }, []);
+
   // Staging State
   const [stagedFiles, setStagedFiles] = useState<StagedFile[]>([]);
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null); // Default account for new drops

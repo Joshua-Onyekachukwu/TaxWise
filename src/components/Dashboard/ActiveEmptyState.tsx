@@ -27,7 +27,7 @@ const ActiveEmptyState: React.FC = () => {
         </p>
 
         <Link
-          href="/dashboard/uploads/new"
+          href="/dashboard/uploads/create"
           className="inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white text-lg font-medium px-8 py-4 rounded-full transition-all shadow-lg hover:shadow-xl hover:-translate-y-1"
         >
           <span className="material-symbols-outlined">upload_file</span>

@@ -164,7 +164,7 @@ const ReportsPage: React.FC = () => {
                       Upload your first financial statement to generate tax reports and insights.
                   </p>
                   <a 
-                      href="/dashboard/uploads/new"
+                      href="/dashboard/uploads/create"
                       className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 md:py-3 md:text-lg md:px-8 transition-colors"
                   >
                       Upload CSV

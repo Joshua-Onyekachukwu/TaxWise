@@ -54,7 +54,7 @@ const UploadsPage: React.FC = () => {
 
         <div className="flex justify-center gap-[15px] mb-[40px]">
           <Link 
-            href="/dashboard/uploads/new" 
+            href="/dashboard/uploads/create" 
             className="inline-block bg-primary-500 text-white py-[12px] px-[25px] rounded-md font-medium hover:bg-primary-400 transition-all shadow-md"
           >
             Upload New File
