@@ -12,9 +12,19 @@ if (typeof (global as any).ImageData === 'undefined') {
 }
 
 // @ts-ignore
-const pdfParseModule = require('pdf-parse/node');
+const pdfParseModule = require('pdf-parse');
 // @ts-ignore
-const pdfParse = pdfParseModule.default || pdfParseModule;
+const PDFParse = pdfParseModule.PDFParse || pdfParseModule.default?.PDFParse || pdfParseModule.default;
+
+let pdfjsWorkerReady: Promise<void> | null = null;
+async function ensurePdfjsWorker() {
+  if (!pdfjsWorkerReady) {
+    pdfjsWorkerReady = import('pdfjs-dist/legacy/build/pdf.worker.mjs').then((m: any) => {
+      (globalThis as any).pdfjsWorker = m;
+    });
+  }
+  return pdfjsWorkerReady;
+}
 
 export class PdfParserService {
   /**
@@ -24,12 +34,25 @@ export class PdfParserService {
    * 2. AI-based extraction (fallback, higher cost) - *To be implemented*
    */
   async parse(buffer: Buffer): Promise<NormalizedTransaction[]> {
+    // @ts-ignore
+    if (typeof PDFParse !== 'function') {
+      throw new Error('PDF parser is not available in this runtime.');
+    }
+
+    await ensurePdfjsWorker();
+
+    // @ts-ignore
+    if (typeof PDFParse.setWorker === 'function') {
+      PDFParse.setWorker(require.resolve('pdfjs-dist/legacy/build/pdf.worker.mjs'));
+    }
+
+    // @ts-ignore
+    const parser = new PDFParse({ data: buffer });
     try {
       // Optional debug (remove after confirming)
       // console.log('pdfParse typeof:', typeof pdfParse);
 
-      // @ts-ignore
-      const data = await pdfParse(buffer);
+      const data = await parser.getText();
       const text = data?.text || '';
 
       // Strategy 1: Regex Extraction
@@ -48,6 +71,9 @@ export class PdfParserService {
     } catch (error: any) {
       console.error('PDF Parsing failed:', error);
       throw new Error(`Failed to parse PDF file: ${error?.message || 'Unknown error'}`);
+    } finally {
+      // @ts-ignore
+      await parser.destroy?.();
     }
   }
 
