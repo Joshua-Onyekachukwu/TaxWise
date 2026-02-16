@@ -12,7 +12,7 @@ if (typeof (global as any).ImageData === 'undefined') {
 }
 
 // @ts-ignore
-const pdfParseModule = require('pdf-parse');
+const pdfParseModule = require('pdf-parse/node');
 // @ts-ignore
 const pdfParse = pdfParseModule.default || pdfParseModule;
 
