@@ -68,6 +68,11 @@ export class PdfParserService {
         // We look for the last 2-3 numbers in a line (Debit, Credit, Balance usually)
         const amountRegex = /([\d,]+\.\d{2})|([\d,]+)/g;
 
+        // NEW: Check if PDF is just an image wrapper (common issue)
+        if (text.trim().length < 50 && text.trim().length > 0) {
+            console.warn("PDF has very little text. It might be scanned.");
+        }
+
         for (const line of lines) {
             const dateMatch = line.match(dateRegex);
             if (!dateMatch) continue;
