@@ -24,6 +24,15 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions })
     return "₦" + Number(amount).toLocaleString();
   };
 
+  // Helper for safe date formatting
+  const formatDate = (dateString: string) => {
+    // Check if we are on the server to prevent hydration mismatch
+    // But since this is a "use client" component, we can just ensure deterministic formatting
+    // Or use a simple string if the date is already YYYY-MM-DD
+    if (!dateString) return "-";
+    return dateString; // The API returns YYYY-MM-DD which is stable
+  };
+
   // Helper for status styling
   const getStatusClass = (tx: Transaction) => {
     if (tx.status === 'pending_review') return "text-orange-700 bg-orange-100";
@@ -74,7 +83,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions })
               transactions.map((txn, index) => (
                 <tr key={txn.id || index} className="border-b border-gray-50 dark:border-[#172036] last:border-0 hover:bg-gray-50 dark:hover:bg-[#15203c] transition-colors">
                   <td className="py-[12px] px-[15px] text-gray-500 whitespace-nowrap">
-                    {new Date(txn.date).toLocaleDateString()}
+                    {formatDate(txn.date)}
                   </td>
                   <td className="py-[12px] px-[15px] font-medium text-black dark:text-white whitespace-nowrap max-w-[200px] truncate">
                     {txn.description}
