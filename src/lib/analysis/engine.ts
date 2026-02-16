@@ -343,11 +343,24 @@ export class AnalysisEngine {
         }
     };
 
-    // Upsert
-    const { error } = await this.supabase
+    // Upsert workaround (since unique constraint might be missing on upload_id)
+    const { data: existingSummary } = await this.supabase
         .from("upload_summaries")
-        .upsert(summaryData, { onConflict: 'upload_id' });
+        .select("id")
+        .eq("upload_id", uploadId)
+        .maybeSingle();
 
-    if (error) console.error("Failed to save upload summary:", error);
+    if (existingSummary) {
+        const { error } = await this.supabase
+            .from("upload_summaries")
+            .update(summaryData)
+            .eq("id", existingSummary.id);
+         if (error) console.error("Failed to update upload summary:", error);
+    } else {
+        const { error } = await this.supabase
+            .from("upload_summaries")
+            .insert(summaryData);
+         if (error) console.error("Failed to insert upload summary:", error);
+    }
   }
 }

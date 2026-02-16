@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 interface Transaction {
@@ -16,6 +16,7 @@ interface Transaction {
 }
 
 const UploadDetailsPage: React.FC = () => {
+  const router = useRouter();
   const params = useParams();
   const id = params?.id as string;
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -33,8 +34,8 @@ const UploadDetailsPage: React.FC = () => {
       
       const result = await response.json();
       if (result.success) {
-        // Refresh data
-        window.location.reload();
+        // Refresh data using Next.js router instead of hard reload
+        router.refresh();
       }
     } catch (error) {
       console.error("Analysis Failed:", error);

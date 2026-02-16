@@ -18,6 +18,8 @@ const AnalysisContent: React.FC = () => {
   const supabase = createClient();
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -32,16 +34,22 @@ const AnalysisContent: React.FC = () => {
         query = query.eq("upload_id", uploadId);
       }
 
-      const { data } = await query;
+      const { data, error } = await query.abortSignal(controller.signal);
 
-      if (data) {
+      if (!error && data) {
         setTransactions(data);
         processChartData(data);
       }
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     };
 
     fetchData();
+
+    return () => {
+        controller.abort();
+    };
   }, [supabase, uploadId]);
 
   const processChartData = (data: any[]) => {

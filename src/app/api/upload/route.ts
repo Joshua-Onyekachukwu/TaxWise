@@ -8,6 +8,9 @@ import { NormalizedTransaction } from "@/lib/csv-adapters/types";
 
 // Force Node.js runtime for this route (required for pdf-parse)
 export const runtime = 'nodejs';
+// Increase timeout to 60 seconds (Vercel Pro/Hobby limits apply)
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
