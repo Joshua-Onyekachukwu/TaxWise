@@ -4,7 +4,16 @@ import React, { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 
-import { Transaction } from '@/lib/types';
+interface Transaction {
+  id: string;
+  date: string;
+  description: string;
+  amount: number;
+  type: string;
+  status: string;
+  is_deductible: boolean;
+  category: string;
+}
 
 const TransactionsPage = () => {
   const supabase = createClient();
@@ -41,11 +50,17 @@ const TransactionsPage = () => {
         console.error('Error fetching transactions:', txError);
         setError('Failed to fetch transactions.');
       } else {
-        const mappedData = data.map(tx => ({
-            ...tx,
-            category: tx.categories ? tx.categories.name : 'Uncategorized'
+        const mappedData: Transaction[] = data.map((tx: any) => ({
+          id: tx.id,
+          date: tx.date,
+          description: tx.description,
+          amount: tx.amount,
+          type: tx.type,
+          status: tx.status,
+          is_deductible: tx.is_deductible,
+          category: tx.categories?.name || 'Uncategorized',
         }));
-        setTransactions(mappedData as Transaction[]);
+        setTransactions(mappedData);
       }
       setLoading(false);
     };
@@ -82,8 +97,8 @@ const TransactionsPage = () => {
                   <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{new Date(tx.date).toLocaleDateString()}</td>
                   <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{tx.description}</td>
                   <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${tx.categories ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
-                      {tx.categories?.name || 'Uncategorized'}
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${tx.category !== 'Uncategorized' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
+                      {tx.category}
                     </span>
                   </td>
                   <td className={`px-6 py-4 text-sm font-medium text-right whitespace-nowrap ${tx.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>

@@ -14,6 +14,7 @@ export default function Home() {
     <>
       <Navbar />
       
+      {/* Added a comment to clear build cache */}
       <div className="overflow-hidden">
         <HeroBanner />
         <Benefits />
