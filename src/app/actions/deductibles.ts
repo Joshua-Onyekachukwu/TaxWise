@@ -22,5 +22,5 @@ export async function getDeductibleTransactions() {
         return [];
     }
 
-    return data.map(tx => ({ ...tx, category: tx.categories?.name || 'Uncategorized' }));
+    return data.map(tx => ({ ...tx, category: tx.categories[0]?.name || 'Uncategorized' }));
 }
