@@ -30,32 +30,32 @@ interface BenefitsData {
 // Dynamic data configuration
 const benefitsData: BenefitsData = {
   tag: "Why Taxwise?",
-  title: "Tax Compliance Without the Headache",
-  description: "Stop worrying about deadlines and deductions. Taxwise handles the heavy lifting so you can focus on your business.",
+  title: "Focus on Your Business, Not on Taxes",
+  description: "Taxwise automatically finds and categorizes your tax-deductible expenses, so you can be confident you're maximizing your savings at tax time.",
   features: [
     {
       icon: "/images/icons/check-purple.svg",
       alt: "check",
-      text: "Automatic categorization of bank transactions"
+      text: "Connect your bank, upload a CSV or PDF"
     },
     {
       icon: "/images/icons/check-purple.svg",
       alt: "check",
-      text: "Smart detection of deductible expenses"
+      text: "Instantly see a breakdown of your spending"
     },
     {
       icon: "/images/icons/check-purple.svg",
       alt: "check",
-      text: "Audit-ready PDF & CSV reports"
+      text: "Identify and track all potential tax deductions"
     },
     {
       icon: "/images/icons/check-purple.svg",
       alt: "check",
-      text: "Localized for Nigerian tax laws (and growing)"
+      text: "Generate reports for easy tax filing"
     }
   ],
-  buttonText: "Start Free -",
-  buttonSubtext: "No card required",
+  buttonText: "Get Started for Free",
+  buttonSubtext: "",
   buttonHref: "/auth/sign-up",
   image: {
     src: "/images/happy-girl.png",

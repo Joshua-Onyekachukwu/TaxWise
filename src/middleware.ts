@@ -56,6 +56,15 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
+
+
+  // Protect API routes
+  if (request.nextUrl.pathname.startsWith('/api/')) {
+    if (!user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+    }
+  }
+
   // Protect Dashboard Routes
   if (request.nextUrl.pathname.startsWith('/dashboard')) {
     if (!user) {

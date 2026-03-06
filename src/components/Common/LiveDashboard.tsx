@@ -57,7 +57,7 @@ const liveDashboardData: LiveDashboardData = {
   ],
   cta: {
     text: "Try It Now -",
-    subtext: "Upload a CSV",
+    subtext: "Upload a CSV or PDF",
     href: "/auth/sign-up",
   },
   image: {

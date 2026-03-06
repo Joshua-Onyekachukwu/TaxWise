@@ -9,12 +9,28 @@ interface StagedFile {
     id: string;
     file: File;
     accountId: string | null;
-    status: 'pending' | 'ready' | 'mapping_required' | 'error';
+    status: 'pending' | 'ready' | 'mapping_required' | 'processing' | 'success' | 'error';
     mapping?: any;
     error?: string;
+    progress?: number;
+}
+
+import { createClient } from "@/lib/supabase/client";
+
+const getFriendlyErrorMessage = (message: string): string => {
+  if (message.includes("Failed to parse PDF")) {
+    return "Invalid PDF format. Please try a different file.";
+  } else if (message.includes("File not provided")) {
+    return "No file was uploaded. Please select a file.";
+  } else if (message.includes("Account ID not provided")) {
+    return "Please select a bank account for all files.";
+  } else {
+    return "An unexpected error occurred. Please try again.";
+  }
 }
 
 const NewUploadPage: React.FC = () => {
+  const supabase = createClient();
   const router = useRouter();
   const [dragActive, setDragActive] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -69,10 +85,6 @@ const NewUploadPage: React.FC = () => {
           file: f,
           accountId: selectedAccountId, // Assign default selected account
           status: 'ready' // Assume ready until processed? Or pending?
-          // Actually, we don't know if mapping is required until we try to parse.
-          // For now, let's mark them as 'pending' and maybe do a quick check?
-          // Or just let user click "Run Analysis" and fail if mapping needed?
-          // Better UX: Pre-check CSVs.
       }));
 
       // Filter for CSV/PDF
@@ -107,10 +119,6 @@ const NewUploadPage: React.FC = () => {
       setIsProcessing(true);
       setGlobalError(null);
 
-      // 2. Upload Loop (Sequential for now to handle mapping interruptions)
-      // Actually, if we want a "Mapping Required" flow, we might need to upload one by one.
-      // Or we send all, and server returns "Success" or "Need Mapping".
-
       try {
           const results = [];
           
@@ -124,14 +132,18 @@ const NewUploadPage: React.FC = () => {
                   formData.append("mapping", JSON.stringify(staged.mapping));
               }
 
-              const res = await fetch("/api/upload", {
-                  method: "POST",
-                  body: formData
-              });
-              const data = await res.json();
+              setStagedFiles(prev => prev.map(f => f.id === staged.id ? { ...f, status: 'processing', progress: 50 } : f));
 
-              if (!data.success && data.status === "mapping_required") {
+              const { data, error } = await supabase.functions.invoke("upload-statement", {
+                  body: formData,
+              });
+
+              if (error) {
+                  const friendlyError = getFriendlyErrorMessage(error.message);
+                  setStagedFiles(prev => prev.map(f => f.id === staged.id ? { ...f, status: 'error', error: friendlyError } : f));
+              } else if (data.status === "mapping_required") {
                   // Pause batch, show mapping UI for this file
+                  setStagedFiles(prev => prev.map(f => f.id === staged.id ? { ...f, status: 'mapping_required' } : f));
                   setMappingFileId(staged.id);
                   setCsvHeaders(data.headers);
                   setPreviewRows(data.filePreview);
@@ -142,22 +154,14 @@ const NewUploadPage: React.FC = () => {
                   });
                   setIsProcessing(false);
                   return; // Stop loop, wait for user
-              }
-
-              if (!res.ok) {
-                  // Mark as error
-                  setStagedFiles(prev => prev.map(f => f.id === staged.id ? { ...f, status: 'error', error: data.error } : f));
-              } else {
+              } else if (data.success) {
+                  setStagedFiles(prev => prev.map(f => f.id === staged.id ? { ...f, status: 'success', progress: 100 } : f));
                   results.push(data.uploadId);
               }
           }
 
           // If we got here, all succeeded
           if (results.length > 0) {
-              // Redirect to analysis of the LAST upload (or a summary page?)
-              // For now, just go to analysis of first or last.
-              // Better: Go to dashboard root which shows recent uploads?
-              // Or generic analysis page.
               router.push(`/dashboard/analysis?uploadId=${results[0]}`); // Just show one for now
           }
 
@@ -318,10 +322,10 @@ const NewUploadPage: React.FC = () => {
                 <div className="w-[60px] h-[60px] bg-gray-100 dark:bg-[#15203c] rounded-full flex items-center justify-center mb-[15px] text-gray-500">
                     <i className="material-symbols-outlined !text-3xl">upload_file</i>
                 </div>
-                <h3 className="text-lg font-semibold mb-[5px] text-black dark:text-white">
+                <h3 className="text-xl font-bold mb-2 text-black dark:text-white">
                     Drop CSVs or PDFs here
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-base text-gray-500 dark:text-gray-400">
                     or click to browse
                 </p>
               </div>
@@ -340,7 +344,18 @@ const NewUploadPage: React.FC = () => {
                                   </div>
                                   <div className="flex-grow min-w-0">
                                       <p className="text-sm font-medium text-black dark:text-white truncate">{file.file.name}</p>
-                                      <p className="text-xs text-gray-500">{(file.file.size / 1024).toFixed(1)} KB</p>
+                                      <div className="text-xs text-gray-500 flex items-center gap-2">
+                                        <span>{(file.file.size / 1024).toFixed(1)} KB</span>
+                                        <span className="text-gray-300 dark:text-gray-600">•</span>
+                                        <span className={`capitalize font-medium ${file.status === 'success' ? 'text-green-500' : file.status === 'error' ? 'text-red-500' : 'text-gray-500'}`}>
+                                          {file.status}
+                                        </span>
+                                      </div>
+                                      {file.status === 'processing' && (
+                                        <div className="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700 mt-2">
+                                          <div className="bg-primary-500 h-1.5 rounded-full animate-pulse" style={{ width: `${file.progress || 100}%` }}></div>
+                                        </div>
+                                      )}
                                       {file.error && <p className="text-xs text-red-500 mt-1">{file.error}</p>}
                                   </div>
                                   

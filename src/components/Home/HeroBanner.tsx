@@ -11,19 +11,18 @@ const HeroBanner: React.FC = () => {
         <div className="container sm:max-w-[540px] md:max-w-[720px] lg:max-w-[960px] xl:max-w-[1308px] mx-auto px-[12px]">
           <div className="text-center mx-auto lg:max-w-[880px]">
             <h1 className="!font-medium !text-3xl md:!text-[45px] lg:!text-[55px] xl:!text-[60px] !leading-[1.2] !mb-[12px] md:!mb-[15px] lg:!mb-[20px]">
-              Stop Guessing Your Taxes. Start Saving.
+              Find Every Possible Tax Deduction.
             </h1>
 
             <p className="md:text-[15px] lg:text-md xl:text-lg mx-auto md:max-w-[630px]">
-              Taxwise simplifies tax season for Nigerian freelancers and businesses. 
-              Upload your bank statement, automatically find deductible expenses, and generate audit-ready tax reports in seconds.
+              Taxwise automatically analyzes your bank statements (CSV or PDF), identifies all potential deductible expenses, and generates the reports you need to file your taxes with confidence.
             </p>
 
             <Link
               href="/auth/sign-up"
               className="inline-block font-medium md:text-base rounded-[30px] bg-purple-600 text-white py-[11.5px] md:py-[12.5px] lg:py-[13.5px] px-[22px] md:px-[25px] transition-all hover:bg-purple-500 hover:text-white mt-[5px] md:mt-[15px] lg:mt-[25px]"
             >
-              Start Saving - <span className="font-normal">It’s Free</span>
+              Analyze Your Statements for Free
             </Link>
           </div>
 

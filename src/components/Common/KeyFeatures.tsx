@@ -42,7 +42,7 @@ const keyFeaturesData: KeyFeaturesData = {
       id: 1,
       title: "Upload & Analyze",
       description:
-        "Simply upload your bank statement CSV. We handle the messy formatting and cleaning automatically.",
+        "Simply upload your bank statements (CSV or PDF). We handle the messy formatting and cleaning automatically.",
       icon: {
         src: "/images/icons/card.svg",
         alt: "upload",

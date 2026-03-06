@@ -1,100 +1,38 @@
 import { NormalizedTransaction } from '../csv-adapters/types';
-
-// Polyfills for pdf-parse dependencies to avoid build errors in Node.js
-if (typeof (global as any).DOMMatrix === 'undefined') {
-  (global as any).DOMMatrix = class DOMMatrix {};
-}
-if (typeof (global as any).Path2D === 'undefined') {
-  (global as any).Path2D = class Path2D {};
-}
-if (typeof (global as any).ImageData === 'undefined') {
-  (global as any).ImageData = class ImageData {};
-}
-
-// @ts-ignore
-const pdfParseModule = require('pdf-parse');
-// @ts-ignore
-const PDFParse = pdfParseModule.PDFParse || pdfParseModule.default?.PDFParse || pdfParseModule.default;
-
-let pdfjsWorkerReady: Promise<void> | null = null;
-async function ensurePdfjsWorker() {
-  if (!pdfjsWorkerReady) {
-    pdfjsWorkerReady = import('pdfjs-dist/legacy/build/pdf.worker.mjs').then((m: any) => {
-      (globalThis as any).pdfjsWorker = m;
-    });
-  }
-  return pdfjsWorkerReady;
-}
+import { bankParsers } from './banks';
+const pdf = require('pdf-parse');
 
 export class PdfParserService {
-  /**
-   * Parse a PDF buffer into normalized transactions.
-   * Uses a multi-strategy approach:
-   * 1. Text-based Regex extraction (fast, low cost)
-   * 2. AI-based extraction (fallback, higher cost) - *To be implemented*
-   */
   async parse(buffer: Buffer): Promise<NormalizedTransaction[]> {
-    // @ts-ignore
-    if (typeof PDFParse !== 'function') {
-      throw new Error('PDF parser is not available in this runtime.');
-    }
-
-    await ensurePdfjsWorker();
-
-    // @ts-ignore
-    if (typeof PDFParse.setWorker === 'function') {
-      PDFParse.setWorker(require.resolve('pdfjs-dist/legacy/build/pdf.worker.mjs'));
-    }
-
-    // @ts-ignore
-    const parser = new PDFParse({ data: buffer });
     try {
-      // Optional debug (remove after confirming)
-      // console.log('pdfParse typeof:', typeof pdfParse);
+      const data = await pdf(buffer);
+      const text = data.text;
 
-      const data = await parser.getText();
-      const text = data?.text || '';
+      const compatibleParser = bankParsers.find((parser) =>
+        parser.compatibilityTest.test(text)
+      );
 
-      // Strategy 1: Regex Extraction
-      const transactions = this.parseWithRegex(text);
-
-      if (transactions.length > 0) {
-        return transactions;
+      if (compatibleParser) {
+        return compatibleParser.parse(text);
       }
 
-      // Strategy 2: AI Extraction (Placeholder)
-      // if (process.env.OPENAI_API_KEY) {
-      //    return this.parseWithAI(text);
-      // }
-
-      return [];
+      console.warn('No compatible bank parser found. Using generic regex parser.');
+      return this.parseWithGenericRegex(text);
     } catch (error: any) {
       console.error('PDF Parsing failed:', error);
       throw new Error(`Failed to parse PDF file: ${error?.message || 'Unknown error'}`);
-    } finally {
-      // @ts-ignore
-      await parser.destroy?.();
     }
   }
 
-  /**
-   * Attempts to extract transactions using common bank statement regex patterns.
-   * Supports formats like:
-   * DD-MMM-YYYY Description Debit Credit Balance
-   * DD/MM/YYYY Description Amount (Dr/Cr)
-   */
-  private parseWithRegex(text: string): NormalizedTransaction[] {
+  private parseWithGenericRegex(text: string): NormalizedTransaction[] {
     const transactions: NormalizedTransaction[] = [];
     const lines = text.split('\n');
 
-    // 1. Date: DD/MM/YYYY or DD-MMM-YYYY or YYYY-MM-DD or "DD MMM YYYY"
     const dateRegex =
       /(\d{2}[\/\-]\d{2}[\/\-]\d{4}|\d{4}[\/\-]\d{2}[\/\-]\d{2}|\d{2}\s[A-Za-z]{3}\s\d{4})/;
 
-    // 2. Amount: Numbers with commas, optional decimals, optional negative sign
     const amountRegex = /([\d,]+\.\d{2})|([\d,]+)/g;
 
-    // Check if PDF is likely scanned/image-only
     if (text.trim().length < 50 && text.trim().length > 0) {
       console.warn('PDF has very little text. It might be scanned (image-only).');
     }
@@ -156,7 +94,6 @@ export class PdfParserService {
     return transactions;
   }
 
-  // ✅ Slightly safer date normalizer (optional but recommended)
   private normalizeDate(dateStr: string): string | null {
     // DD/MM/YYYY
     const m1 = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
