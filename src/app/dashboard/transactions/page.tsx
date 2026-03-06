@@ -4,16 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 
-interface Transaction {
-  id: string;
-  date: string;
-  description: string;
-  amount: number;
-  type: string;
-  status: string;
-  is_deductible: boolean;
-  categories: { name: string } | null;
-}
+import { Transaction } from '@/lib/types';
 
 const TransactionsPage = () => {
   const supabase = createClient();
@@ -50,7 +41,11 @@ const TransactionsPage = () => {
         console.error('Error fetching transactions:', txError);
         setError('Failed to fetch transactions.');
       } else {
-        setTransactions(data as Transaction[]);
+        const mappedData = data.map(tx => ({
+            ...tx,
+            category: tx.categories?.name || 'Uncategorized'
+        }));
+        setTransactions(mappedData as Transaction[]);
       }
       setLoading(false);
     };
