@@ -43,7 +43,7 @@ const TransactionsPage = () => {
       } else {
         const mappedData = data.map(tx => ({
             ...tx,
-            category: tx.categories?.name || 'Uncategorized'
+            category: tx.categories ? tx.categories.name : 'Uncategorized'
         }));
         setTransactions(mappedData as Transaction[]);
       }
