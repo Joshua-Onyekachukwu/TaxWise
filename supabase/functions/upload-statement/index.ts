@@ -1,6 +1,6 @@
 /// <reference types="https://deno.land/x/deno/cli/types/lib.deno.d.ts" />
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "@supabase/supabase-js";
 import { Buffer } from "node:buffer";
 import { AnalysisEngine } from "../_shared/analysis/engine";
 import { ParserFactory } from "../_shared/parsing/ParserFactory";
