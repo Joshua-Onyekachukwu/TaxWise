@@ -23,7 +23,7 @@ const HeroBanner: React.FC = () => {
               className="inline-block font-medium md:text-base rounded-[30px] bg-purple-600 text-white py-[11.5px] md:py-[12.5px] lg:py-[13.5px] px-[22px] md:px-[25px] transition-all hover:bg-purple-500 hover:text-white mt-[5px] md:mt-[15px] lg:mt-[25px]"
             >
               Analyze Your Statements for Free
-            </Link>
+            </LoadingLink>
           </div>
 
           <div className="mt-[25px] md:mt-[50px] lg:mt-[75px] xl:mt-[100px] text-center rounded-[15px]">

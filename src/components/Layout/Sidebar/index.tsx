@@ -64,7 +64,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleActive }) => {
           <ul className="sidebar-sub-menu">
             {/* Uploads */}
             <li className="sidemenu-item mb-[4px] last:mb-0">
-              <Link
+              <LoadingLink
                 href="/dashboard/uploads"
                 className={`sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[14px] ltr:pr-[30px] rtl:pr-[14px] rtl:pl-[30px] hover:text-purple-500 hover:bg-purple-50 w-full text-left dark:hover:bg-[#15203c] ${
                   pathname?.startsWith("/dashboard/uploads") ? "active text-purple-600 bg-purple-50 dark:bg-[#15203c]" : ""
@@ -74,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleActive }) => {
                   upload_file
                 </i>
                 Uploads
-              </Link>
+              </LoadingLink>
             </li>
 
             {/* Analysis */}

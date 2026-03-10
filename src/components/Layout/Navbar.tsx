@@ -43,12 +43,12 @@ const Navbar: React.FC = () => {
 
           {/* Auth Buttons */}
           <div className="flex items-center gap-[15px]">
-            <Link
+            <LoadingLink
               href="/auth/sign-in"
               className="hidden md:inline-block font-medium text-black dark:text-white hover:text-purple-600"
             >
               Sign In
-            </Link>
+            </LoadingLink>
             
             <Link
               href="/auth/sign-up"
