@@ -50,12 +50,12 @@ const Navbar: React.FC = () => {
               Sign In
             </LoadingLink>
             
-            <Link
+            <LoadingLink
               href="/auth/sign-up"
               className="inline-block font-medium text-sm md:text-base rounded-[30px] bg-black text-white dark:bg-white dark:text-black py-[10px] px-[20px] transition-all hover:bg-purple-600 hover:text-white dark:hover:bg-purple-600 dark:hover:text-white"
             >
               Get Started
-            </Link>
+            </LoadingLink>
           </div>
 
         </div>

@@ -2,6 +2,7 @@
 
 import React from "react";
 import LoadingLink from "@/components/Layout/LoadingLink";
+import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 
@@ -79,7 +80,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleActive }) => {
 
             {/* Analysis */}
             <li className="sidemenu-item mb-[4px] last:mb-0">
-              <Link
+              <LoadingLink
                 href="/dashboard/analysis"
                 className={`sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[14px] ltr:pr-[30px] rtl:pr-[14px] rtl:pl-[30px] hover:text-purple-500 hover:bg-purple-50 w-full text-left dark:hover:bg-[#15203c] ${
                   pathname?.startsWith("/dashboard/analysis") ? "active text-purple-600 bg-purple-50 dark:bg-[#15203c]" : ""
@@ -89,7 +90,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleActive }) => {
                   analytics
                 </i>
                 Analysis
-              </Link>
+              </LoadingLink>
             </li>
 
             {/* Deductibles */}
