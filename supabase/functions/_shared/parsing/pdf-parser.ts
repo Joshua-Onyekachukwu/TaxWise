@@ -17,7 +17,13 @@ export class PdfParserService {
       }
 
       console.warn('No compatible bank parser found. Using generic regex parser.');
-      return this.parseWithGenericRegex(text);
+      const transactions = this.parseWithGenericRegex(text);
+
+      if (transactions.length === 0) {
+        throw new Error("This does not appear to be a valid bank statement. No transactions were found.");
+      }
+
+      return transactions;
     } catch (error: any) {
       console.error('PDF Parsing failed:', error);
       throw new Error(`Failed to parse PDF file: ${error?.message || 'Unknown error'}`);
