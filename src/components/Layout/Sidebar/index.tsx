@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
+import LoadingLink from "@/components/Layout/LoadingLink";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 
@@ -16,14 +16,14 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleActive }) => {
     <div className="sidebar-area bg-white dark:bg-[#0c1427] fixed z-[7] top-0 h-screen transition-all rounded-r-md">
       {/* Logo Section */}
       <div className="logo bg-white dark:bg-[#0c1427] border-b border-gray-100 dark:border-[#172036] px-[25px] pt-[19px] pb-[15px] absolute z-[2] right-0 top-0 left-0">
-        <Link
+        <LoadingLink
           href="/dashboard"
           className="transition-none relative flex items-center outline-none"
         >
           <span className="font-bold text-black dark:text-white relative top-px text-xl">
             Taxwise<span className="text-purple-600">.</span>
           </span>
-        </Link>
+        </LoadingLink>
 
         <button
           type="button"
@@ -44,7 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleActive }) => {
           <ul className="sidebar-sub-menu">
             {/* Dashboard Home */}
             <li className="sidemenu-item mb-[4px] last:mb-0">
-              <Link
+              <LoadingLink
                 href="/dashboard"
                 className={`sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[14px] ltr:pr-[30px] rtl:pr-[14px] rtl:pl-[30px] hover:text-purple-500 hover:bg-purple-50 w-full text-left dark:hover:bg-[#15203c] ${
                   pathname === "/dashboard" ? "active text-purple-600 bg-purple-50 dark:bg-[#15203c]" : ""
@@ -54,7 +54,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleActive }) => {
                   dashboard
                 </i>
                 Dashboard
-              </Link>
+              </LoadingLink>
             </li>
           </ul>
 

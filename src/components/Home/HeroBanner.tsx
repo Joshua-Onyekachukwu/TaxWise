@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import Link from "next/link";
+import LoadingLink from "@/components/Layout/LoadingLink";
 
 const HeroBanner: React.FC = () => {
   return (
@@ -18,7 +18,7 @@ const HeroBanner: React.FC = () => {
               Taxwise automatically analyzes your bank statements (CSV or PDF), identifies all potential deductible expenses, and generates the reports you need to file your taxes with confidence.
             </p>
 
-            <Link
+            <LoadingLink
               href="/auth/sign-up"
               className="inline-block font-medium md:text-base rounded-[30px] bg-purple-600 text-white py-[11.5px] md:py-[12.5px] lg:py-[13.5px] px-[22px] md:px-[25px] transition-all hover:bg-purple-500 hover:text-white mt-[5px] md:mt-[15px] lg:mt-[25px]"
             >

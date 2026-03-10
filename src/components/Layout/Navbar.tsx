@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import Link from "next/link";
+import LoadingLink from "@/components/Layout/LoadingLink";
 
 const Navbar: React.FC = () => {
   return (
@@ -11,23 +11,34 @@ const Navbar: React.FC = () => {
         <div className="flex items-center justify-between">
           
           {/* Logo */}
-          <Link href="/" className="inline-block">
-            <h1 className="text-2xl font-bold text-black dark:text-white">
-              Taxwise<span className="text-purple-600">.</span>
-            </h1>
-          </Link>
+          <LoadingLink href="/" className="inline-block">
+            <Image
+              src="/images/logo.svg"
+              alt="logo"
+              width={120}
+              height={28}
+              className="hidden lg:block"
+            />
+            <Image
+              src="/images/logo-icon.svg"
+              alt="logo"
+              width={28}
+              height={28}
+              className="block lg:hidden"
+            />
+          </LoadingLink>
 
           {/* Navigation Links (Desktop) */}
           <div className="hidden lg:flex items-center gap-[30px]">
-            <Link href="#features" className="text-black dark:text-white hover:text-purple-600 font-medium">
+            <LoadingLink href="#features" className="text-black dark:text-white hover:text-purple-600 font-medium">
               Features
-            </Link>
-            <Link href="#how-it-works" className="text-black dark:text-white hover:text-purple-600 font-medium">
-              How it Works
-            </Link>
-            <Link href="#pricing" className="text-black dark:text-white hover:text-purple-600 font-medium">
-              Pricing
-            </Link>
+            </LoadingLink>
+            <LoadingLink href="#how-it-works" className="text-black dark:text-white hover:text-purple-600 font-medium">
+                How it Works
+              </LoadingLink>
+              <LoadingLink href="#pricing" className="text-black dark:text-white hover:text-purple-600 font-medium">
+                Pricing
+              </LoadingLink>
           </div>
 
           {/* Auth Buttons */}

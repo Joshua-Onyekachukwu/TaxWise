@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
+import LoadingLink from "@/components/Layout/LoadingLink";
 import { createClient } from "@/lib/supabase/client";
 import AccountFilter from "@/components/Dashboard/AccountFilter";
 
@@ -149,13 +149,13 @@ const WelcomeBanner: React.FC = () => {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-[12px] w-full md:w-auto">
-              <Link
+              <LoadingLink
                 href="/dashboard/uploads/new"
                 className="inline-flex justify-center items-center gap-[8px] bg-white text-indigo-900 py-[12px] px-[24px] rounded-xl text-sm font-bold hover:bg-indigo-50 transition-all shadow-md active:scale-95"
               >
                 <i className="material-symbols-outlined !text-[20px]">upload_file</i>
                 Upload First Statement
-              </Link>
+              </LoadingLink>
             </div>
           </div>
         </div>
