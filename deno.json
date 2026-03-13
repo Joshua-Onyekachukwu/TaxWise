@@ -1,4 +1,7 @@
 {
+  "compilerOptions": {
+    "lib": ["deno.ns"]
+  },
   "lint": {
     "files": {
       "include": ["supabase/functions"]
