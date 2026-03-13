@@ -1,50 +1,59 @@
-import { BankStatementParser } from './types.ts';
-import { NormalizedTransaction } from '../../csv-adapters/types.ts';
+import { IBankParser, AccountInformation, NormalizedTransaction } from './types.ts';
 
-export class KudaBankParser implements BankStatementParser {
-  bankIdentifier = 'kuda';
+export class KudaParser implements IBankParser {
+  isApplicable(text: string): boolean {
+    // Kuda statements usually have a very clear header
+    return text.includes("Statement of Account") && text.includes("kuda.com");
+  }
 
-  compatibilityTest = /Kuda Microfinance Bank/i;
+  parse(text: string): { accountInfo: AccountInformation, transactions: NormalizedTransaction[] } {
+    const accountInfo: AccountInformation = this.extractAccountInfo(text);
+    const transactions: NormalizedTransaction[] = this.extractTransactions(text);
+    return { accountInfo, transactions };
+  }
 
-  parse(text: string): NormalizedTransaction[] {
+  private extractAccountInfo(text: string): AccountInformation {
+    const accountName = text.match(/Account Name: (.*)/)?.[1].trim();
+    const accountNumber = text.match(/Account Number: (.*)/)?.[1].trim();
+    const statementPeriod = text.match(/Statement Period: (.*) to (.*)/);
+    const openingBalance = text.match(/Opening Balance: (.*)/)?.[1].replace(/,/g, '');
+    const closingBalance = text.match(/Closing Balance: (.*)/)?.[1].replace(/,/g, '');
+
+    return {
+      accountName: accountName || null,
+      accountNumber: accountNumber || null,
+      bankName: 'Kuda Bank',
+      statementPeriod: {
+        startDate: statementPeriod ? statementPeriod[1].trim() : null,
+        endDate: statementPeriod ? statementPeriod[2].trim() : null,
+      },
+      openingBalance: openingBalance ? parseFloat(openingBalance) : null,
+      closingBalance: closingBalance ? parseFloat(closingBalance) : null,
+    };
+  }
+
+  private extractTransactions(text: string): NormalizedTransaction[] {
     const transactions: NormalizedTransaction[] = [];
-    const statementBody = text.substring(text.indexOf('Date'), text.lastIndexOf('Balance'));
-    const lines = statementBody.split('\n').filter(line => line.trim() !== '');
+    const regex = /^(\d{2}\/\d{2}\/\d{4})\s+(.*?)\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})$/gm;
 
-    const transactionRegex = /^(?<date>\d{2}\s\w{3},\s\d{4})\s+(?<description>.+?)(?=\s{2,}|$)/;
-    const amountRegex = /(?<debit>[\d,]+\.\d{2}-)|(?<credit>[\d,]+\.\d{2}\+)/;
-
-    for (const line of lines) {
-      const transactionMatch = line.match(transactionRegex);
-      const amountMatch = line.match(amountRegex);
-
-      if (transactionMatch?.groups && amountMatch?.groups) {
-        const { date, description } = transactionMatch.groups;
-        const { debit, credit } = amountMatch.groups;
-
-        const debitAmount = debit ? parseFloat(debit.replace(/,/g, '')) : 0;
-        const creditAmount = credit ? parseFloat(credit.replace(/,/g, '')) : 0;
-
-        if (isNaN(debitAmount) && isNaN(creditAmount)) continue;
-
-        const transaction: NormalizedTransaction = {
-          date: this.normalizeDate(date),
-          description: description.trim(),
-          amount: debitAmount > 0 ? debitAmount : creditAmount,
-          type: debitAmount > 0 ? 'expense' : 'income',
-          currency: 'NGN',
-          raw_row: line,
-        };
-
-        transactions.push(transaction);
-      }
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      transactions.push({
+        transactionId: null,
+        date: match[1],
+        description: match[2].trim(),
+        debit: this.parseAmount(match[3]),
+        credit: this.parseAmount(match[4]),
+        balance: this.parseAmount(match[5]),
+        currency: 'NGN',
+      });
     }
 
     return transactions;
   }
 
-  private normalizeDate(dateStr: string): string {
-    const d = new Date(dateStr);
-    return d.toISOString().split('T')[0];
+  private parseAmount(amount: string): number | null {
+    if (!amount || amount.trim() === "") return null;
+    return parseFloat(amount.replace(/,/g, ''));
   }
 }

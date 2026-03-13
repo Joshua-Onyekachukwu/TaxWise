@@ -1,22 +1,29 @@
-import { NormalizedTransaction } from '../../csv-adapters/types.ts';
+export interface AccountInformation {
+  accountName: string | null;
+  accountNumber: string | null;
+  bankName: string;
+  statementPeriod: {
+    startDate: string | null;
+    endDate: string | null;
+  };
+  openingBalance: number | null;
+  closingBalance: number | null;
+}
 
-export interface BankStatementParser {
-  /**
-   * A unique identifier for the bank this parser supports.
-   * e.g., 'gtbank', 'accessbank'
-   */
-  bankIdentifier: string;
+export interface NormalizedTransaction {
+  transactionId: string | null;
+  date: string;
+  description: string;
+  debit: number | null;
+  credit: number | null;
+  balance: number | null;
+  currency: string;
+}
 
-  /**
-   * A regex pattern to quickly test if this parser is likely
-   * to be compatible with a given document text.
-   */
-  compatibilityTest: RegExp;
-
-  /**
-   * The core parsing logic to extract transactions from the text.
-   * @param text The full text content of the PDF.
-   * @returns An array of normalized transactions.
-   */
-  parse(text: string): NormalizedTransaction[];
+export interface IBankParser {
+  // A method to quickly check if this parser is suitable for the given PDF text content
+  isApplicable(text: string): boolean;
+  
+  // The main method to parse the PDF text and return normalized data
+  parse(text: string): { accountInfo: AccountInformation, transactions: NormalizedTransaction[] };
 }

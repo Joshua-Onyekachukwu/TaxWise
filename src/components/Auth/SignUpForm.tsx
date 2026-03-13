@@ -5,11 +5,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { z } from "zod";
+import { SignUpSchema } from "@/lib/schemas";
 
 const SignUpForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState(""); // Not used in auth directly but good for profile
+  const [fullName, setFullName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -17,6 +19,14 @@ const SignUpForm: React.FC = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const result = SignUpSchema.safeParse({ fullName, email, password });
+
+    if (!result.success) {
+      setError(result.error.flatten().fieldErrors.fullName?.[0] || result.error.flatten().fieldErrors.email?.[0] || result.error.flatten().fieldErrors.password?.[0] || '');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -37,10 +47,8 @@ const SignUpForm: React.FC = () => {
       }
 
       if (data.session) {
-        // Email confirmation is disabled, user is signed in immediately
         router.push("/dashboard");
       } else {
-        // Email confirmation is enabled
         alert("Check your email for the confirmation link!");
         router.push("/auth/sign-in");
       }

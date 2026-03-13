@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { z } from "zod";
+import { SignInSchema } from "@/lib/schemas";
 
 const SignInForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -16,6 +18,14 @@ const SignInForm: React.FC = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const result = SignInSchema.safeParse({ email, password });
+
+    if (!result.success) {
+      setError(result.error.flatten().fieldErrors.email?.[0] || result.error.flatten().fieldErrors.password?.[0] || '');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -29,11 +39,6 @@ const SignInForm: React.FC = () => {
         throw error;
       }
 
-      // Success visual feedback before redirect
-      // We can use a success state here, but since we redirect fast, just keeping spinner is okay.
-      // But user requested "clear visual confirmation".
-      // Let's add a success checkmark or text change.
-      
       router.push("/dashboard"); 
       router.refresh();
     } catch (err: any) {

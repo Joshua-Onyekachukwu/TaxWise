@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import Link from "next/link";
 
 interface Transaction {
@@ -14,11 +15,30 @@ interface Transaction {
   categories?: { name: string } | null;
 }
 
-interface RecentTransactionsProps {
-  transactions: Transaction[];
-}
+const RecentTransactions: React.FC = () => {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
 
-const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions }) => {
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*, categories(name)')
+        .order('date', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error('Error fetching transactions:', error);
+      } else {
+        setTransactions(data as Transaction[]);
+      }
+      setLoading(false);
+    };
+
+    fetchTransactions();
+  }, []);
+
   // Helper to format currency
   const formatCurrency = (amount: number | string) => {
     return "₦" + Number(amount).toLocaleString();
@@ -26,18 +46,15 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions })
 
   // Helper for safe date formatting
   const formatDate = (dateString: string) => {
-    // Check if we are on the server to prevent hydration mismatch
-    // But since this is a "use client" component, we can just ensure deterministic formatting
-    // Or use a simple string if the date is already YYYY-MM-DD
     if (!dateString) return "-";
-    return dateString; // The API returns YYYY-MM-DD which is stable
+    return dateString;
   };
 
   // Helper for status styling
   const getStatusClass = (tx: Transaction) => {
     if (tx.status === 'pending_review') return "text-orange-700 bg-orange-100";
     if (tx.is_deductible) return "text-success-700 bg-success-100";
-    return "text-gray-700 bg-gray-100"; // Personal/Other
+    return "text-gray-700 bg-gray-100";
   };
 
   const getStatusLabel = (tx: Transaction) => {
@@ -45,6 +62,10 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions })
     if (tx.is_deductible) return "Deductible";
     return "Personal";
   };
+
+  if (loading) {
+    return <div className="bg-white dark:bg-[#0c1427] p-[20px] md:p-[25px] rounded-md shadow-sm border border-gray-100 dark:border-[#172036] h-full animate-pulse"></div>;
+  }
 
   return (
     <div className="bg-white dark:bg-[#0c1427] p-[20px] md:p-[25px] rounded-md shadow-sm border border-gray-100 dark:border-[#172036] h-full">

@@ -1,20 +1,13 @@
 import { IBankParser, AccountInformation, NormalizedTransaction } from './types.ts';
 
-export class UbaParser implements IBankParser {
+export class AccessParser implements IBankParser {
   isApplicable(text: string): boolean {
-    return text.includes("UBA") && text.includes("UNITED BANK FOR AFRICA");
+    return text.includes("Access Bank");
   }
 
   parse(text: string): { accountInfo: AccountInformation, transactions: NormalizedTransaction[] } {
     // Implementation to be added once sample statements are provided
-    const accountInfo: AccountInformation = {
-      accountName: null,
-      accountNumber: null,
-      bankName: 'UBA',
-      statementPeriod: { startDate: null, endDate: null },
-      openingBalance: null,
-      closingBalance: null,
-    };
+    const accountInfo: AccountInformation = { /* ... */ bankName: 'Access Bank' };
     const transactions: NormalizedTransaction[] = [];
     return { accountInfo, transactions };
   }

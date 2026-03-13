@@ -5,17 +5,31 @@ import LoadingLink from "@/components/Layout/LoadingLink";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import AccountFilter from "@/components/Dashboard/AccountFilter";
+import { StatementUploader } from "./StatementUploader";
 
 // Onboarding form, rendered conditionally
+import { z } from "zod";
+import { OnboardingSchema } from "@/lib/schemas";
+
 const OnboardingForm = ({ user, onComplete }: { user: any; onComplete: () => void }) => {
   const supabase = createClient();
   const [userType, setUserType] = useState('freelancer');
   const [currency, setCurrency] = useState('NGN');
   const [taxYearStart, setTaxYearStart] = useState('2024-01-01');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<any>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const result = OnboardingSchema.safeParse({ user_type: userType, currency_code: currency, tax_year_start: taxYearStart });
+
+    if (!result.success) {
+      setErrors(result.error.flatten());
+      return;
+    }
+
+    setErrors(null);
     setIsSubmitting(true);
 
     const { error } = await supabase
@@ -52,6 +66,7 @@ const OnboardingForm = ({ user, onComplete }: { user: any; onComplete: () => voi
                     <option value="freelancer">Freelancer</option>
                     <option value="business">Small Business</option>
                 </select>
+                {errors?.fieldErrors.user_type && <p className="text-red-400 text-sm mt-1">{errors.fieldErrors.user_type[0]}</p>}
             </div>
             <div>
                 <label htmlFor="currency" className="block text-sm font-medium text-white/90">My primary currency is...</label>
@@ -60,6 +75,7 @@ const OnboardingForm = ({ user, onComplete }: { user: any; onComplete: () => voi
                     <option value="USD">US Dollar (USD)</option>
                     <option value="GBP">British Pound (GBP)</option>
                 </select>
+                {errors?.fieldErrors.currency_code && <p className="text-red-400 text-sm mt-1">{errors.fieldErrors.currency_code[0]}</p>}
             </div>
             <button type="submit" disabled={isSubmitting} className="w-full px-4 py-2 text-indigo-900 bg-white rounded-md font-bold hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400">
                 {isSubmitting ? 'Saving...' : 'Complete Setup'}
@@ -140,23 +156,17 @@ const WelcomeBanner: React.FC = () => {
           style={{ background: "linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)" }}
         >
           <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-white opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-          <div className="relative z-[1] flex flex-col md:flex-row items-start md:items-end justify-between gap-[20px]">
-            <div className="max-w-[600px]">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold !text-white mb-[10px] leading-tight capitalize">
-                Welcome back, <span className="!text-indigo-200">{userName}</span>
-              </h1>
-              <p className="text-white/80 text-sm md:text-base leading-relaxed">
-                Upload your first bank statement to unlock powerful tax insights and find deductible expenses automatically.
-              </p>
+          <div className="relative z-[1] grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold !text-white mb-[10px] leading-tight capitalize">
+                    Welcome back, <span className="!text-indigo-200">{userName}</span>
+                </h1>
+                <p className="text-white/80 text-sm md:text-base leading-relaxed">
+                    Ready to get your taxes sorted? Let's start by uploading your latest bank statements.
+                </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-[12px] w-full md:w-auto">
-              <LoadingLink
-                href="/dashboard/uploads/new"
-                className="inline-flex justify-center items-center gap-[8px] bg-white text-indigo-900 py-[12px] px-[24px] rounded-xl text-sm font-bold hover:bg-indigo-50 transition-all shadow-md active:scale-95"
-              >
-                <i className="material-symbols-outlined !text-[20px]">upload_file</i>
-                Upload First Statement
-              </LoadingLink>
+            <div className="lg:col-span-1">
+                <StatementUploader />
             </div>
           </div>
         </div>
