@@ -1,6 +1,12 @@
 {
-  "compilerOptions": {
-    "lib": ["deno.ns", "dom"]
+  "lint": {
+    "files": {
+      "include": ["supabase/functions"]
+    }
   },
-  "importMap": "./import_map.json"
+  "fmt": {
+    "files": {
+      "include": ["supabase/functions"]
+    }
+  }
 }
