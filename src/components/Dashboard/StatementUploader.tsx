@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-
-export import { AccountSelector } from './AccountSelector';
+import { createClient } from '@/lib/supabase/client';
+import { Toaster, toast } from 'react-hot-toast';
+import { AccountSelector } from './AccountSelector';
 
 export const StatementUploader: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
@@ -19,34 +20,42 @@ export const StatementUploader: React.FC = () => {
     if (files.length === 0) return;
 
     setIsUploading(true);
+    toast.loading('Uploading statements...');
 
     const uploadPromises = files.map(async (file) => {
       const formData = new FormData();
       formData.append('file', file);
-      // TODO: Get the actual account ID from a selector
-      formData.append('accountId', 'your-account-id');
+      formData.append('accountId', selectedAccountId);
 
       const supabase = createClient();
       const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('No active session');
+      }
 
-      const res = await fetch('/api/upload-statement', {
-        method: 'POST',
+      const { data, error } = await supabase.functions.invoke('upload-statement', {
         body: formData,
         headers: {
-          'Authorization': `Bearer ${session?.access_token}`,
-        }
+          'Authorization': `Bearer ${session.access_token}`,
+        },
       });
 
-      return res.json();
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
     });
 
     try {
       const results = await Promise.all(uploadPromises);
       console.log('Upload results:', results);
-      // TODO: Show a success message to the user
+      toast.dismiss();
+      toast.success('Statements uploaded successfully!');
     } catch (error) {
       console.error('Upload failed:', error);
-      // TODO: Show an error message to the user
+      toast.dismiss();
+      toast.error('Upload failed. Please try again.');
     } finally {
       setIsUploading(false);
       setFiles([]);
