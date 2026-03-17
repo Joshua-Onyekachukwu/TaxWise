@@ -63,9 +63,31 @@ const RecentTransactions: React.FC = () => {
     return "Personal";
   };
 
+  import { Skeleton } from '@/components/Layout/Skeleton';
+
+// ... (rest of the file)
+
   if (loading) {
-    return <div className="bg-white dark:bg-[#0c1427] p-[20px] md:p-[25px] rounded-md shadow-sm border border-gray-100 dark:border-[#172036] h-full animate-pulse"></div>;
+    return (
+      <div className="bg-white dark:bg-[#0c1427] p-[20px] md:p-[25px] rounded-md shadow-sm border border-gray-100 dark:border-[#172036] h-full">
+        <Skeleton className="h-8 w-1/3 mb-6" />
+        <div className="space-y-4">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex items-center gap-4">
+              <Skeleton className="h-10 w-10 rounded-full" />
+              <div className="flex-1">
+                <Skeleton className="h-5 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+              <Skeleton className="h-8 w-1/4" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
+
+// ... (rest of the file)
 
   return (
     <div className="bg-white dark:bg-[#0c1427] p-[20px] md:p-[25px] rounded-md shadow-sm border border-gray-100 dark:border-[#172036] h-full">

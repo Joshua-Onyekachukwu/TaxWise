@@ -1,15 +1,10 @@
 {
+  "tasks": {
+    "start": "deno run --allow-net --allow-env --watch functions/index.ts",
+    "test": "deno test --allow-net --allow-env"
+  },
   "compilerOptions": {
-    "lib": ["deno.ns"]
+    "lib": ["deno.ns", "dom"]
   },
-  "lint": {
-    "files": {
-      "include": ["supabase/functions"]
-    }
-  },
-  "fmt": {
-    "files": {
-      "include": ["supabase/functions"]
-    }
-  }
+  "importMap": "./supabase/functions/import_map.json"
 }

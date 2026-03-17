@@ -1,5 +1,6 @@
 "use client";
 
+import { Skeleton } from '@/components/Layout/Skeleton';
 import React, { useEffect, useState } from "react";
 import LoadingLink from "@/components/Layout/LoadingLink";
 import Link from "next/link";
@@ -126,11 +127,18 @@ const WelcomeBanner: React.FC = () => {
 
   const needsOnboarding = !profile?.user_type;
 
+  
+
   if (loading) {
       return (
-        <div className="mb-[30px] p-[30px] rounded-2xl bg-gray-200 dark:bg-gray-800 animate-pulse h-[150px]"></div>
+        <div className="mb-[30px] p-[30px] rounded-2xl bg-gray-800">
+          <Skeleton className="h-8 w-1/2 mb-4" />
+          <Skeleton className="h-6 w-3/4" />
+        </div>
       );
   }
+
+// ... (rest of the file)
 
   // State 1: Onboarding needed
   if (needsOnboarding) {
